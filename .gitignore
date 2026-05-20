@@ -1,0 +1,45 @@
+# Secrets
+.env
+*.key
+*.pem
+credentials.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Runtime artifacts (not part of the deliverable)
+logs/*.jsonl
+logs/.cursor
+replays/*.json
+replays/*.html
+
+# Lecturer reference materials (kept locally for context; not part of submission)
+software_submission_guidelines-V3.pdf
+guidelines_for_writing_professional_code_at_excellence.md
+hw2 prompt.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
