@@ -1,0 +1,27 @@
+{
+  "version": "1.00",
+  "_comment": "Gatekeeper budgets and retry policy. User has enterprise license so caps are generous; these are sanity ceilings not budget squeezes.",
+
+  "web_search_provider": "anthropic_builtin",
+  "_web_search_provider_doc": "One of: anthropic_builtin | tavily | exa | omnisearch. Only switch if Anthropic web_search is disabled at the org level.",
+
+  "anthropic": {
+    "max_requests_per_second": 10,
+    "max_concurrent": 4,
+    "queue_max_depth": 64,
+    "queue_max_block_s": 30
+  },
+
+  "retry_policy": {
+    "max_retries": 4,
+    "backoff_base_s": 0.5,
+    "backoff_factor": 2.0,
+    "backoff_max_s": 8.0,
+    "retry_on_status": [408, 429, 500, 502, 503, 504]
+  },
+
+  "cost_caps": {
+    "max_cost_usd_per_debate": 10.00,
+    "search_cost_usd_per_use": 0.01
+  }
+}
