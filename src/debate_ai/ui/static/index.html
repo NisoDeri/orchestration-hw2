@@ -6,118 +6,188 @@
 <title>Messi vs Ronaldo - Live Debate</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; }
-header { background: linear-gradient(135deg, #7B1E3B 0%, #1a1a2e 50%, #0E3D6B 100%); padding: 16px 24px; text-align: center; }
-header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
-header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 4px; }
-.scores { display: flex; justify-content: center; gap: 32px; padding: 12px; background: #111; border-bottom: 1px solid #222; }
-.score-card { text-align: center; min-width: 120px; }
-.score-card .name { font-weight: 600; font-size: 0.9rem; }
-.score-card .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
-.score-card.messi .name { color: #e84393; }
-.score-card.ronaldo .name { color: #0984e3; }
-.chat { flex: 1; overflow-y: auto; padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
-.msg { max-width: 75%; padding: 12px 16px; border-radius: 16px; line-height: 1.5; font-size: 0.95rem; animation: fadeIn 0.3s ease; }
-.msg.messi { align-self: flex-start; background: #2d1f2f; border: 1px solid #7B1E3B40; border-radius: 16px 16px 16px 4px; }
-.msg.ronaldo { align-self: flex-end; background: #1a2536; border: 1px solid #0E3D6B40; border-radius: 16px 16px 4px 16px; }
-.msg.system { align-self: center; background: #1a1a2e; text-align: center; font-size: 0.85rem; opacity: 0.8; max-width: 90%; border-radius: 8px; }
-.msg.commentary { align-self: center; background: #2a2a1e; font-style: italic; font-size: 0.85rem; border-radius: 8px; }
-.msg .sender { font-weight: 700; font-size: 0.8rem; margin-bottom: 4px; display: block; }
-.msg.messi .sender { color: #e84393; }
-.msg.ronaldo .sender { color: #0984e3; }
-.msg .meta { font-size: 0.75rem; opacity: 0.5; margin-top: 6px; }
-.verdict { background: linear-gradient(135deg, #2d1f2f, #1a2536); border: 2px solid gold; padding: 20px; border-radius: 12px; text-align: center; margin: 16px auto; max-width: 500px; }
-.verdict h2 { color: gold; margin-bottom: 8px; }
-.crowd { font-size: 1.4rem; text-align: center; padding: 4px; }
-.factcheck { align-self: center; background: #1e2a1e; border: 1px solid #2d6a2d40; font-size: 0.85rem; border-radius: 8px; padding: 10px 14px; max-width: 80%; }
-.confidence-bar { height: 6px; background: #222; border-radius: 3px; margin: 8px 24px; overflow: hidden; }
-.confidence-fill { height: 100%; transition: width 0.5s ease; background: linear-gradient(90deg, #e84393, #888, #0984e3); }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-footer { padding: 8px; text-align: center; font-size: 0.75rem; opacity: 0.4; background: #0a0a0a; }
+body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #111b21; }
+header { background: #075e54; padding: 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.4); z-index: 10; }
+header .avatar { width: 40px; height: 40px; border-radius: 50%; background: #25d366; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+header .info h1 { font-size: 1rem; font-weight: 600; color: #fff; }
+header .info .sub { font-size: 0.75rem; color: #a8d8c8; }
+.scoreboard { display: flex; justify-content: space-around; align-items: center; padding: 8px 16px; background: #1f2c34; border-bottom: 1px solid #2a3942; }
+.sb-player { text-align: center; min-width: 90px; }
+.sb-player .name { font-size: 0.8rem; font-weight: 600; }
+.sb-player .score { font-size: 1.6rem; font-weight: 700; color: #fff; }
+.sb-player.messi .name { color: #25d366; }
+.sb-player.ronaldo .name { color: #34b7f1; }
+.sb-vs { color: #667781; font-size: 0.85rem; font-weight: 600; }
+.momentum { height: 4px; background: #2a3942; }
+.momentum-fill { height: 100%; width: 50%; transition: width 0.6s ease; background: linear-gradient(90deg, #25d366, #128c7e, #34b7f1); }
+.chat-wrap { flex: 1; overflow: hidden; position: relative; }
+.chat-bg { position: absolute; inset: 0; background: url('/static/background.png') center/cover no-repeat; opacity: 0.35; }
+.chat-bg::after { content: ''; position: absolute; inset: 0; background: rgba(11,20,26,0.6); }
+.chat { position: relative; z-index: 1; height: 100%; overflow-y: auto; padding: 8px 12px; display: flex; flex-direction: column; gap: 4px; }
+.bubble { max-width: 75%; padding: 6px 10px; border-radius: 8px; font-size: 0.88rem; line-height: 1.4; position: relative; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,0.15); }
+.bubble .sender { font-weight: 600; font-size: 0.78rem; margin-bottom: 2px; display: block; }
+.bubble .ts { font-size: 0.68rem; float: right; margin-left: 8px; margin-top: 4px; opacity: 0.55; color: #a0a8ad; }
+.bubble.messi { align-self: flex-end; background: #005c4b; color: #e9edef; border-radius: 8px 0 8px 8px; }
+.bubble.messi .sender { color: #25d366; }
+.bubble.ronaldo { align-self: flex-start; background: #1f2c34; color: #e9edef; border-radius: 0 8px 8px 8px; }
+.bubble.ronaldo .sender { color: #34b7f1; }
+.bubble.judge { align-self: flex-start; background: #2a2014; color: #e9edef; border-radius: 0 8px 8px 8px; max-width: 85%; }
+.bubble.judge .sender { color: #f5c842; }
+.sys-msg { align-self: center; background: #1a2730; color: #8696a0; padding: 5px 12px; border-radius: 8px; font-size: 0.78rem; text-align: center; max-width: 85%; box-shadow: 0 1px 1px rgba(0,0,0,0.2); }
+.round-badge { align-self: center; background: #182229; color: #8696a0; padding: 5px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; margin: 6px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.bubble.commentator { align-self: center; background: #1a2730; color: #a8b5bd; font-style: italic; font-size: 0.82rem; border-radius: 8px; max-width: 85%; text-align: center; }
+.bubble.commentator .sender { color: #b48ead; font-style: normal; }
+.crowd-burst { align-self: center; text-align: center; padding: 2px 14px; animation: popIn 0.4s ease; }
+.crowd-burst .emojis { font-size: 1.6rem; letter-spacing: 4px; }
+.crowd-burst .liner { font-size: 0.78rem; color: #5ec4db; margin-top: 2px; }
+.bubble.factcheck { align-self: center; background: #1a2e1a; border-left: 3px solid #4caf50; color: #c8e6c9; font-size: 0.82rem; border-radius: 4px 8px 8px 4px; max-width: 85%; padding: 8px 12px; }
+.bubble.factcheck .sender { color: #4caf50; font-weight: 700; }
+.bubble.factcheck .fc-incorrect { color: #ef5350; font-weight: 700; }
+.bubble.factcheck .fc-correct { color: #66bb6a; font-weight: 700; }
+.bubble.factcheck .fc-misleading { color: #ffa726; font-weight: 700; }
+.verdict-card { align-self: center; background: linear-gradient(135deg, #005c4b, #1f2c34); border: 2px solid #f5c842; padding: 16px 20px; border-radius: 12px; text-align: center; max-width: 380px; margin: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.verdict-card h2 { color: #f5c842; font-size: 1.1rem; margin-bottom: 6px; }
+.verdict-card .final-score { font-size: 1.4rem; font-weight: 700; color: #fff; margin: 4px 0; }
+.verdict-card .reasoning { font-size: 0.82rem; color: #a8b5bd; margin-top: 8px; line-height: 1.4; }
+footer { padding: 6px; text-align: center; font-size: 0.7rem; color: #667781; background: #111b21; }
+.chat::-webkit-scrollbar { width: 6px; }
+.chat::-webkit-scrollbar-thumb { background: #374045; border-radius: 3px; }
+.typing-ind { padding: 10px 16px; box-shadow: 0 1px 1px rgba(0,0,0,0.15); }
+.typing-ind.left { align-self: flex-start; background: #1f2c34; border-radius: 0 8px 8px 8px; }
+.typing-ind.right { align-self: flex-end; background: #005c4b; border-radius: 8px 0 8px 8px; }
+.typing-ind span { display: inline-block; width: 7px; height: 7px; background: #8696a0; border-radius: 50%; margin: 0 2px; animation: bounce 1.4s infinite; }
+.typing-ind span:nth-child(2) { animation-delay: 0.2s; }
+.typing-ind span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-5px);opacity:1} }
+@keyframes popIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
 </style>
 </head>
 <body>
 <header>
-  <h1>MESSI vs RONALDO</h1>
-  <div class="subtitle">Live AI Debate - Scored by Claude</div>
+  <div class="avatar">&#9917;</div>
+  <div class="info"><h1>Messi vs Ronaldo - AI Debate</h1>
+  <div class="sub">Judge scores persuasion only | All messages routed through Judge</div></div>
 </header>
-<div class="scores">
-  <div class="score-card messi"><div class="name">Messi</div><div class="value" id="score-a">0</div></div>
-  <div class="score-card"><div class="name">VS</div><div class="value" style="font-size:1.2rem;opacity:0.4">&#9917;</div></div>
-  <div class="score-card ronaldo"><div class="name">Ronaldo</div><div class="value" id="score-b">0</div></div>
+<div class="scoreboard">
+  <div class="sb-player messi"><div class="name">Messi (A)</div><div class="score" id="score-a">0</div></div>
+  <div class="sb-vs">VS</div>
+  <div class="sb-player ronaldo"><div class="name">Ronaldo (B)</div><div class="score" id="score-b">0</div></div>
 </div>
-<div class="confidence-bar"><div class="confidence-fill" id="conf-fill" style="width:50%"></div></div>
-<div class="chat" id="chat"></div>
-<footer>debate-ai v1.00 | Orchestration HW2</footer>
+<div class="momentum"><div class="momentum-fill" id="mom-fill"></div></div>
+<div class="chat-wrap"><div class="chat-bg"></div>
+  <div class="chat" id="chat">
+    <div id="start-panel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;">
+      <div style="font-size:2.5rem;">&#9917;</div>
+      <div style="color:#e9edef;font-size:1.1rem;font-weight:600;">Messi vs Ronaldo</div>
+      <div style="color:#8696a0;font-size:0.85rem;text-align:center;max-width:280px;">10 rounds scored by the Judge in real-time. Lies are allowed — the fact-checker annotates for you.</div>
+      <button id="start-btn" onclick="startDemo()" style="background:#00a884;color:#111b21;border:none;padding:10px 28px;border-radius:24px;font-size:0.95rem;font-weight:600;cursor:pointer;">Start Demo Debate</button>
+    </div>
+  </div>
+</div>
+<footer>debate-ai v1.00 | Orchestration HW2 | Nissim Deri &amp; Yarden Tziar</footer>
 <script>
-const chat = document.getElementById('chat');
-const scoreA = document.getElementById('score-a');
-const scoreB = document.getElementById('score-b');
-const confFill = document.getElementById('conf-fill');
-let totalA = 0, totalB = 0;
-
-function addMsg(cls, sender, text, meta) {
-  const d = document.createElement('div');
-  d.className = 'msg ' + cls;
-  let html = '';
-  if (sender) html += '<span class="sender">' + sender + '</span>';
-  html += text;
-  if (meta) html += '<div class="meta">' + meta + '</div>';
-  d.innerHTML = html;
-  chat.appendChild(d);
-  chat.scrollTop = chat.scrollHeight;
+const chat=document.getElementById('chat'), scoreA=document.getElementById('score-a'),
+  scoreB=document.getElementById('score-b'), momFill=document.getElementById('mom-fill');
+let totalA=0, totalB=0;
+const Q=[]; let busy=false, userScrolled=false;
+chat.addEventListener('scroll',()=>{userScrolled=chat.scrollHeight-chat.scrollTop-chat.clientHeight>100;});
+function scr(){if(!userScrolled)scr();}
+function enq(fn){Q.push(fn); if(!busy)drain();}
+function drain(){if(!Q.length){busy=false;return;} busy=true; Q.shift()(()=>setTimeout(drain,120));}
+function now(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function showTyping(side){
+  rmTyping();
+  const d=document.createElement('div');
+  d.id='typ'; d.className='typing-ind '+(side==='right'?'right':'left');
+  d.innerHTML='<span></span><span></span><span></span>';
+  chat.appendChild(d); scr();
 }
-
-function updateScores() {
-  scoreA.textContent = totalA.toFixed(1);
-  scoreB.textContent = totalB.toFixed(1);
-  const total = totalA + totalB;
-  confFill.style.width = total === 0 ? '50%' : ((totalA / total) * 100) + '%';
+function rmTyping(){const t=document.getElementById('typ');if(t)t.remove();}
+function typeWords(el,text,done){
+  const words=text.split(' '); let i=0;
+  const ms=Math.max(30,Math.min(70,3000/words.length));
+  const iv=setInterval(()=>{
+    el.textContent+=(i?(' '):'')+words[i]; i++; scr();
+    if(i>=words.length){clearInterval(iv);done();}
+  },ms);
 }
-
-const es = new EventSource('/api/events');
-es.onmessage = function(e) {
-  const ev = JSON.parse(e.data);
-  switch(ev.kind) {
-    case 'debate_started':
-      addMsg('system', null, 'Debate started: ' + (ev.payload.motion || '')); break;
-    case 'round_changed':
-      addMsg('system', null, 'Round ' + ev.payload.round + ' (' + ev.payload.kind + ')'); break;
-    case 'agent_message': {
-      const cls = ev.payload.agent === 'debater-a' ? 'messi' : 'ronaldo';
-      const name = ev.payload.agent === 'debater-a' ? 'Messi' : 'Ronaldo';
-      addMsg(cls, name, ev.payload.argument, 'Round ' + ev.payload.round);
-      break;
-    }
-    case 'score_update': {
-      const s = ev.payload.score;
-      const t = (s.logic || 0) + (s.evidence || 0) + (s.persuasion || 0) + (s.counter || 0);
-      if (ev.payload.agent === 'debater-a') totalA += t; else totalB += t;
-      updateScores();
-      break;
-    }
-    case 'commentary':
-      addMsg('commentary', 'Commentator', ev.payload.commentary || JSON.stringify(ev.payload)); break;
-    case 'crowd_reaction':
-      addMsg('crowd', null, (ev.payload.emojis || []).join(' ') + ' ' + (ev.payload.one_liner || '')); break;
-    case 'fact_check':
-      if (ev.payload.claims && ev.payload.claims.length)
-        addMsg('factcheck', 'Fact-Check', ev.payload.claims.map(c => c.quote + ': ' + c.verdict).join('<br>'));
-      break;
-    case 'verdict': {
-      const v = document.createElement('div');
-      v.className = 'verdict';
-      const winner = ev.payload.winner === 'debater-a' ? 'MESSI' : 'RONALDO';
-      v.innerHTML = '<h2>' + winner + ' WINS!</h2><p>' + ev.payload.score_a + ' - ' + ev.payload.score_b + '</p><p>' + (ev.payload.reasoning || '') + '</p>';
-      chat.appendChild(v);
-      chat.scrollTop = chat.scrollHeight;
-      break;
-    }
-    case 'debate_ended':
-      addMsg('system', null, 'Debate ended.'); break;
+function addTyped(cls,sender,text,extra,done){
+  const side=(cls==='messi')?'right':'left';
+  showTyping(side);
+  setTimeout(()=>{
+    rmTyping();
+    const d=document.createElement('div'); d.className='bubble '+cls;
+    if(sender) d.innerHTML='<span class="sender">'+sender+'</span>';
+    const sp=document.createElement('span'); d.appendChild(sp);
+    chat.appendChild(d); scr();
+    typeWords(sp,text,()=>{
+      const ts=document.createElement('span');ts.className='ts';ts.textContent=now();d.appendChild(ts);
+      if(extra){const e=document.createElement('div');e.className='score-inline';e.innerHTML=extra;d.appendChild(e);}
+      done();
+    });
+  },700);
+}
+function addInstant(cls,html,done){
+  const d=document.createElement('div'); d.className=cls; d.innerHTML=html;
+  chat.appendChild(d); scr(); if(done)done();
+}
+function updateScores(){
+  scoreA.textContent=totalA.toFixed(1); scoreB.textContent=totalB.toFixed(1);
+  const t=totalA+totalB; momFill.style.width=t===0?'50%':((totalA/t)*100)+'%';
+}
+function startDemo(){
+  document.getElementById('start-panel').style.display='none';
+  fetch('/api/demo/start',{method:'POST'}).catch(()=>addInstant('sys-msg','Failed to start'));
+}
+const es=new EventSource('/api/events');
+es.onmessage=function(e){
+  const ev=JSON.parse(e.data);
+  switch(ev.kind){
+  case 'debate_started':
+    enq(d=>{addInstant('sys-msg','Debate: '+(ev.payload.motion||''));d();}); break;
+  case 'round_changed':{
+    const lb={opening:'OPENING',rebuttal:'REBUTTAL',era_swap:'ERA-SWAP',closing:'CLOSING'};
+    enq(d=>{addInstant('round-badge','Round '+ev.payload.round+' — '+(lb[ev.payload.kind]||ev.payload.kind));d();}); break;
+  }
+  case 'judge_guidance':
+    enq(d=>addTyped('judge','Judge',ev.payload.text||'','',d)); break;
+  case 'agent_message':{
+    const a=ev.payload.agent,cls=a==='debater-a'?'messi':a==='debater-b'?'ronaldo':'judge';
+    const nm=a==='debater-a'?'Messi':a==='debater-b'?'Ronaldo':'Judge';
+    enq(d=>addTyped(cls,nm,ev.payload.argument||'','',d)); break;
+  }
+  case 'score_update':{
+    const s=ev.payload.score,t=(s.logic||0)+(s.evidence||0)+(s.persuasion||0)+(s.counter||0);
+    const who=ev.payload.agent==='debater-a'?'Messi':'Ronaldo';
+    if(ev.payload.agent==='debater-a')totalA+=t;else totalB+=t;
+    enq(d=>{updateScores();addInstant('sys-msg','Judge scores '+who+': '+t.toFixed(1)+'/40');d();}); break;
+  }
+  case 'commentary':
+    enq(d=>addTyped('commentator','Commentator',ev.payload.commentary||'','',d)); break;
+  case 'crowd_reaction':{
+    const em=(ev.payload.emojis||[]).join(' '), ln=ev.payload.one_liner||'';
+    enq(d=>{addInstant('crowd-burst','<div class="emojis">'+em+'</div><div class="liner">'+ln+'</div>');d();}); break;
+  }
+  case 'fact_check':
+    if(ev.payload.claims&&ev.payload.claims.length){
+      const h=ev.payload.claims.map(c=>{
+        const v=c.verdict.toUpperCase(),vc=v==='CORRECT'?'fc-correct':v==='INCORRECT'?'fc-incorrect':'fc-misleading';
+        return '<span class="'+vc+'">'+v+'</span>: "'+c.quote+'" — '+(c.note||'');
+      }).join('<br>');
+      enq(d=>{const dd=document.createElement('div');dd.className='bubble factcheck';
+        dd.innerHTML='<span class="sender">Fact-Checker</span>'+h;chat.appendChild(dd);scr();d();});
+    } break;
+  case 'verdict':{
+    const w=ev.payload.winner==='debater-a'?'MESSI':'RONALDO';
+    enq(d=>{const vc=document.createElement('div');vc.className='verdict-card';
+      vc.innerHTML='<h2>&#127942; '+w+' WINS!</h2><div class="final-score">'+ev.payload.score_a+' - '+ev.payload.score_b+'</div><div class="reasoning">'+
+      (ev.payload.reasoning||'')+'</div>';chat.appendChild(vc);scr();d();}); break;
+  }
+  case 'debate_ended':
+    enq(d=>{addInstant('sys-msg','Debate ended.');d();}); break;
   }
 };
-es.onerror = function() { addMsg('system', null, 'Connection lost. Reconnecting...'); };
+es.onerror=function(){addInstant('sys-msg','Connection lost. Reconnecting...');};
 </script>
 </body>
 </html>
