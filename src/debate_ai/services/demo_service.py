@@ -4,7 +4,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-from debate_ai.agents.demo_agents import _MESSI_LINES, _RONALDO_LINES, DemoDebater, DemoJudge
+from debate_ai.agents.demo_agents import DemoDebater, DemoJudge
+from debate_ai.agents.demo_data import MESSI_ARGS, RONALDO_ARGS
 from debate_ai.constants import AgentRole
 from debate_ai.memory.conversation_memory import ConversationMemory
 from debate_ai.models.config_models import JudgeConfig, SetupConfig, WatchdogConfig
@@ -17,6 +18,8 @@ from debate_ai.services.scoring_service import ScoringService
 from debate_ai.shared.config import ConfigLoader
 from debate_ai.shared.logger import FifoLogger
 
+DEMO_PINGS = 10
+
 
 def run_demo(config_dir: Path) -> DebateResult:
     """Assemble demo agents and run the full orchestration loop."""
@@ -24,19 +27,19 @@ def run_demo(config_dir: Path) -> DebateResult:
     debate_json = loader.load("debate")
     persona_a = loader.load_persona(debate_json.persona_a)
     persona_b = loader.load_persona(debate_json.persona_b)
-    pings = min(len(_MESSI_LINES), 5)
-    setup = _demo_setup(pings)
+    setup = _demo_setup(DEMO_PINGS)
     dcfg = DebateConfig(
         motion=debate_json.motion, persona_a=persona_a, persona_b=persona_b,
-        pings_per_side=pings, agents_enabled={r.value: False for r in AgentRole},
+        pings_per_side=DEMO_PINGS, era_swap_round_index=4,
+        agents_enabled={r.value: False for r in AgentRole},
     )
     state = DebateState(cfg=dcfg)
     memory = ConversationMemory("demo", debate_json.motion)
     logger = FifoLogger(directory=Path("logs"), max_files=5, lines_per_file=200)
     agents = {
         AgentRole.JUDGE.value: DemoJudge(),
-        AgentRole.DEBATER_A.value: DemoDebater(_MESSI_LINES, "Ronaldo"),
-        AgentRole.DEBATER_B.value: DemoDebater(_RONALDO_LINES, "Messi"),
+        AgentRole.DEBATER_A.value: DemoDebater(MESSI_ARGS),
+        AgentRole.DEBATER_B.value: DemoDebater(RONALDO_ARGS),
     }
     watchdog = Watchdog(setup.watchdog, logger)
     emitter = EventEmitter(state.debate_id)
@@ -61,7 +64,7 @@ def run_demo(config_dir: Path) -> DebateResult:
 
 def _demo_setup(pings: int) -> SetupConfig:
     return SetupConfig(
-        version="1.00", pings_per_side=pings,
+        version="1.00", pings_per_side=pings, era_swap_round_index=4,
         agents_enabled={r.value: False for r in AgentRole},
         watchdog=WatchdogConfig(
             timeout_s_per_call=30, max_restarts_per_agent=1,
