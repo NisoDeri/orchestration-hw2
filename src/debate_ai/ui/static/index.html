@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messi vs Ronaldo - Live Debate</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; }
+header { background: linear-gradient(135deg, #7B1E3B 0%, #1a1a2e 50%, #0E3D6B 100%); padding: 16px 24px; text-align: center; }
+header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; }
+header .subtitle { font-size: 0.85rem; opacity: 0.7; margin-top: 4px; }
+.scores { display: flex; justify-content: center; gap: 32px; padding: 12px; background: #111; border-bottom: 1px solid #222; }
+.score-card { text-align: center; min-width: 120px; }
+.score-card .name { font-weight: 600; font-size: 0.9rem; }
+.score-card .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+.score-card.messi .name { color: #e84393; }
+.score-card.ronaldo .name { color: #0984e3; }
+.chat { flex: 1; overflow-y: auto; padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 75%; padding: 12px 16px; border-radius: 16px; line-height: 1.5; font-size: 0.95rem; animation: fadeIn 0.3s ease; }
+.msg.messi { align-self: flex-start; background: #2d1f2f; border: 1px solid #7B1E3B40; border-radius: 16px 16px 16px 4px; }
+.msg.ronaldo { align-self: flex-end; background: #1a2536; border: 1px solid #0E3D6B40; border-radius: 16px 16px 4px 16px; }
+.msg.system { align-self: center; background: #1a1a2e; text-align: center; font-size: 0.85rem; opacity: 0.8; max-width: 90%; border-radius: 8px; }
+.msg.commentary { align-self: center; background: #2a2a1e; font-style: italic; font-size: 0.85rem; border-radius: 8px; }
+.msg .sender { font-weight: 700; font-size: 0.8rem; margin-bottom: 4px; display: block; }
+.msg.messi .sender { color: #e84393; }
+.msg.ronaldo .sender { color: #0984e3; }
+.msg .meta { font-size: 0.75rem; opacity: 0.5; margin-top: 6px; }
+.verdict { background: linear-gradient(135deg, #2d1f2f, #1a2536); border: 2px solid gold; padding: 20px; border-radius: 12px; text-align: center; margin: 16px auto; max-width: 500px; }
+.verdict h2 { color: gold; margin-bottom: 8px; }
+.crowd { font-size: 1.4rem; text-align: center; padding: 4px; }
+.factcheck { align-self: center; background: #1e2a1e; border: 1px solid #2d6a2d40; font-size: 0.85rem; border-radius: 8px; padding: 10px 14px; max-width: 80%; }
+.confidence-bar { height: 6px; background: #222; border-radius: 3px; margin: 8px 24px; overflow: hidden; }
+.confidence-fill { height: 100%; transition: width 0.5s ease; background: linear-gradient(90deg, #e84393, #888, #0984e3); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+footer { padding: 8px; text-align: center; font-size: 0.75rem; opacity: 0.4; background: #0a0a0a; }
+</style>
+</head>
+<body>
+<header>
+  <h1>MESSI vs RONALDO</h1>
+  <div class="subtitle">Live AI Debate - Scored by Claude</div>
+</header>
+<div class="scores">
+  <div class="score-card messi"><div class="name">Messi</div><div class="value" id="score-a">0</div></div>
+  <div class="score-card"><div class="name">VS</div><div class="value" style="font-size:1.2rem;opacity:0.4">&#9917;</div></div>
+  <div class="score-card ronaldo"><div class="name">Ronaldo</div><div class="value" id="score-b">0</div></div>
+</div>
+<div class="confidence-bar"><div class="confidence-fill" id="conf-fill" style="width:50%"></div></div>
+<div class="chat" id="chat"></div>
+<footer>debate-ai v1.00 | Orchestration HW2</footer>
+<script>
+const chat = document.getElementById('chat');
+const scoreA = document.getElementById('score-a');
+const scoreB = document.getElementById('score-b');
+const confFill = document.getElementById('conf-fill');
+let totalA = 0, totalB = 0;
+
+function addMsg(cls, sender, text, meta) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + cls;
+  let html = '';
+  if (sender) html += '<span class="sender">' + sender + '</span>';
+  html += text;
+  if (meta) html += '<div class="meta">' + meta + '</div>';
+  d.innerHTML = html;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function updateScores() {
+  scoreA.textContent = totalA.toFixed(1);
+  scoreB.textContent = totalB.toFixed(1);
+  const total = totalA + totalB;
+  confFill.style.width = total === 0 ? '50%' : ((totalA / total) * 100) + '%';
+}
+
+const es = new EventSource('/api/events');
+es.onmessage = function(e) {
+  const ev = JSON.parse(e.data);
+  switch(ev.kind) {
+    case 'debate_started':
+      addMsg('system', null, 'Debate started: ' + (ev.payload.motion || '')); break;
+    case 'round_changed':
+      addMsg('system', null, 'Round ' + ev.payload.round + ' (' + ev.payload.kind + ')'); break;
+    case 'agent_message': {
+      const cls = ev.payload.agent === 'debater-a' ? 'messi' : 'ronaldo';
+      const name = ev.payload.agent === 'debater-a' ? 'Messi' : 'Ronaldo';
+      addMsg(cls, name, ev.payload.argument, 'Round ' + ev.payload.round);
+      break;
+    }
+    case 'score_update': {
+      const s = ev.payload.score;
+      const t = (s.logic || 0) + (s.evidence || 0) + (s.persuasion || 0) + (s.counter || 0);
+      if (ev.payload.agent === 'debater-a') totalA += t; else totalB += t;
+      updateScores();
+      break;
+    }
+    case 'commentary':
+      addMsg('commentary', 'Commentator', ev.payload.commentary || JSON.stringify(ev.payload)); break;
+    case 'crowd_reaction':
+      addMsg('crowd', null, (ev.payload.emojis || []).join(' ') + ' ' + (ev.payload.one_liner || '')); break;
+    case 'fact_check':
+      if (ev.payload.claims && ev.payload.claims.length)
+        addMsg('factcheck', 'Fact-Check', ev.payload.claims.map(c => c.quote + ': ' + c.verdict).join('<br>'));
+      break;
+    case 'verdict': {
+      const v = document.createElement('div');
+      v.className = 'verdict';
+      const winner = ev.payload.winner === 'debater-a' ? 'MESSI' : 'RONALDO';
+      v.innerHTML = '<h2>' + winner + ' WINS!</h2><p>' + ev.payload.score_a + ' - ' + ev.payload.score_b + '</p><p>' + (ev.payload.reasoning || '') + '</p>';
+      chat.appendChild(v);
+      chat.scrollTop = chat.scrollHeight;
+      break;
+    }
+    case 'debate_ended':
+      addMsg('system', null, 'Debate ended.'); break;
+  }
+};
+es.onerror = function() { addMsg('system', null, 'Connection lost. Reconnecting...'); };
+</script>
+</body>
+</html>

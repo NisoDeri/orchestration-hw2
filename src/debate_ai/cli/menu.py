@@ -1,0 +1,77 @@
+"""Interactive terminal menu for the debate CLI.
+
+Presents numbered options. Keeps the session alive until the user
+chooses to exit. No business logic — delegates everything to the SDK.
+"""
+
+from __future__ import annotations
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Prompt
+
+console = Console()
+
+_MENU = """
+[bold cyan]Messi vs Ronaldo Debate Engine[/bold cyan]
+
+  [1] Run a debate
+  [2] Show config
+  [3] List personas
+  [4] Launch web UI
+  [0] Exit
+"""
+
+
+def interactive_menu() -> None:
+    """Keyboard loop — runs until the user picks 0."""
+    console.print(Panel(_MENU.strip(), title="debate-ai", border_style="blue"))
+    while True:
+        choice = Prompt.ask("[bold]Choose[/bold]", choices=["0", "1", "2", "3", "4"])
+        if choice == "0":
+            console.print("[dim]Goodbye.[/dim]")
+            break
+        _dispatch(choice)
+
+
+def _dispatch(choice: str) -> None:
+    if choice == "1":
+        _run_debate()
+    elif choice == "2":
+        _show_config()
+    elif choice == "3":
+        _list_personas()
+    elif choice == "4":
+        _launch_ui()
+
+
+def _run_debate() -> None:
+    from debate_ai.sdk.sdk import run_debate
+    console.print("[bold]Running debate…[/bold]")
+    try:
+        result = run_debate()
+        console.print(f"\n[bold green]Winner: {result.verdict.winner}[/bold green]")
+        console.print(f"Score: {result.verdict.score_a:.1f} – {result.verdict.score_b:.1f}")
+        console.print(f"Reasoning: {result.verdict.reasoning}")
+        console.print(f"Cost: ${result.cost_usd:.4f}")
+    except Exception as exc:  # noqa: BLE001
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+
+
+def _show_config() -> None:
+    from debate_ai.sdk.sdk import get_config
+    cfg = get_config()
+    console.print(f"Motion: {cfg['motion']}")
+    console.print(f"Pings per side: {cfg['pings_per_side']}")
+    console.print(f"Era-swap round: {cfg['era_swap_round']}")
+
+
+def _list_personas() -> None:
+    from debate_ai.sdk.sdk import list_personas
+    for name in list_personas():
+        console.print(f"  • {name}")
+
+
+def _launch_ui() -> None:
+    from debate_ai.ui.server import launch
+    launch()
