@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: latest
+          enable-cache: true
+
+      - name: Pin Python
+        run: uv python install 3.11
+
+      - name: Sync deps
+        run: uv sync
+
+      - name: Lint
+        run: uv run ruff check
+
+      - name: Format check
+        run: uv run ruff format --check
+
+      - name: Tests + coverage
+        run: uv run pytest --cov --cov-report=term-missing
+
+      - name: File-size cap (150 LoC per .py)
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            count=$(grep -cve '^\s*$' -e '^\s*#' "$f" || true)
+            if [ "$count" -gt 150 ]; then
+              echo "::error file=$f::file has $count non-blank/non-comment lines (cap is 150)"
+              fail=1
+            fi
+          done < <(find src tests -name '*.py')
+          exit $fail
