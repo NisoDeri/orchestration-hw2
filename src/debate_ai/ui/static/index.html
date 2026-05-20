@@ -80,7 +80,8 @@ footer { padding: 6px; text-align: center; font-size: 0.7rem; color: #667781; ba
       <div style="font-size:2.5rem;">&#9917;</div>
       <div style="color:#e9edef;font-size:1.1rem;font-weight:600;">Messi vs Ronaldo</div>
       <div style="color:#8696a0;font-size:0.85rem;text-align:center;max-width:280px;">10 rounds scored by the Judge in real-time. Lies are allowed — the fact-checker annotates for you.</div>
-      <button id="start-btn" onclick="startDemo()" style="background:#00a884;color:#111b21;border:none;padding:10px 28px;border-radius:24px;font-size:0.95rem;font-weight:600;cursor:pointer;">Start Demo Debate</button>
+      <button onclick="startDemo()" style="background:#00a884;color:#111b21;border:none;padding:10px 28px;border-radius:24px;font-size:0.95rem;font-weight:600;cursor:pointer;">Start Demo</button>
+      <button onclick="startLive()" style="background:#34b7f1;color:#111b21;border:none;padding:10px 28px;border-radius:24px;font-size:0.95rem;font-weight:600;cursor:pointer;">Start Live Debate (API Key)</button>
     </div>
   </div>
 </div>
@@ -137,7 +138,16 @@ function updateScores(){
 }
 function startDemo(){
   document.getElementById('start-panel').style.display='none';
+  totalA=0;totalB=0;updateScores();
   fetch('/api/demo/start',{method:'POST'}).catch(()=>addInstant('sys-msg','Failed to start'));
+}
+function startLive(){
+  document.getElementById('start-panel').style.display='none';
+  totalA=0;totalB=0;updateScores();
+  addInstant('sys-msg','Starting live debate (requires ANTHROPIC_API_KEY on server)…');
+  fetch('/api/debate/start',{method:'POST'})
+    .then(r=>r.json()).then(d=>{if(!d.started)addInstant('sys-msg','Server error');})
+    .catch(()=>addInstant('sys-msg','Failed to start — is ANTHROPIC_API_KEY set?'));
 }
 const es=new EventSource('/api/events');
 es.onmessage=function(e){

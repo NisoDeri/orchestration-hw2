@@ -55,15 +55,39 @@ async def status() -> dict:
 @app.post("/api/demo/start")
 async def start_demo() -> dict:
     _cfg = Path(__file__).parents[3] / "config"
+    _reset_events()
     emitter = EventEmitter("demo-ui")
     set_emitter(emitter)
     threading.Thread(target=_run_demo_bg, args=(_cfg, emitter), daemon=True).start()
     return {"started": True}
 
 
+@app.post("/api/debate/start")
+async def start_live() -> dict:
+    """Start a live debate using the Anthropic API."""
+    _reset_events()
+    emitter = EventEmitter("live-ui")
+    set_emitter(emitter)
+    threading.Thread(target=_run_live_bg, args=(emitter,), daemon=True).start()
+    return {"started": True}
+
+
 def _run_demo_bg(cfg_dir: Path, emitter: EventEmitter) -> None:
     from debate_ai.services.demo_service import run_demo_with_emitter
     run_demo_with_emitter(cfg_dir, emitter)
+
+
+def _run_live_bg(emitter: EventEmitter) -> None:
+    from debate_ai.sdk.sdk import run_debate
+    try:
+        run_debate(emitter=emitter)
+    except Exception as exc:  # noqa: BLE001
+        emitter.emit("debate_ended", {"error": str(exc)})
+
+
+def _reset_events() -> None:
+    with _lock:
+        _events.clear()
 
 
 def broadcast(event: UIEvent) -> None:

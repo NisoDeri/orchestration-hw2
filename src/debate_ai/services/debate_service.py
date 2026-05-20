@@ -56,7 +56,9 @@ class DebateService:
         self.facts = facts_service
         self.client = anthropic_client
 
-    def run_debate(self) -> DebateResult:
+    def run_debate(
+        self, emitter: EventEmitter | None = None,
+    ) -> DebateResult:
         """Assemble all components and run the debate to completion."""
         memory = ConversationMemory(debate_id="d1", motion=self.motion)
         ctx_builder = ContextBuilder()
@@ -76,14 +78,14 @@ class DebateService:
         state = DebateState(cfg=dcfg)
         rounds = RoundManager(self.setup)
         watchdog = Watchdog(self.setup.watchdog, self.logger)
-        emitter = EventEmitter(state.debate_id)
+        ev = emitter or EventEmitter(state.debate_id)
         scoring = ScoringService(
             self.setup.judge.agreement_keywords,
             self.setup.judge.drift_window_turns,
         )
         mgr = DebateManager(
             agents=agents, state=state, memory=memory,
-            rounds=rounds, watchdog=watchdog, emitter=emitter,
+            rounds=rounds, watchdog=watchdog, emitter=ev,
             scoring=scoring, logger=self.logger,
         )
         final = mgr.run()

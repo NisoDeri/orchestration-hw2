@@ -14,6 +14,7 @@ from typing import Any
 import anthropic
 
 from debate_ai.models.debate_models import DebateResult
+from debate_ai.orchestration.event_emitter import EventEmitter
 from debate_ai.services.debate_service import DebateService
 from debate_ai.services.facts_service import FactsService
 from debate_ai.shared.config import ConfigLoader
@@ -27,8 +28,9 @@ _CONFIG_DIR = Path(__file__).parents[3] / "config"
 def run_debate(
     config_dir: Path | None = None,
     anthropic_client: Any | None = None,
+    emitter: EventEmitter | None = None,
 ) -> DebateResult:
-    """Run a complete Messi vs Ronaldo debate and return the result."""
+    """Run a complete debate and return the result."""
     cfg_dir = config_dir or _CONFIG_DIR
     loader = ConfigLoader(cfg_dir)
     loader.validate_all()
@@ -56,7 +58,7 @@ def run_debate(
         gatekeeper=gatekeeper, logger=logger,
         facts_service=facts_service, anthropic_client=client,
     )
-    return svc.run_debate()
+    return svc.run_debate(emitter=emitter)
 
 
 def list_personas(config_dir: Path | None = None) -> list[str]:
