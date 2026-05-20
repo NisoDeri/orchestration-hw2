@@ -62,20 +62,18 @@ The lecturer's actual brief (Hebrew, given in Lecture 05 and the matching summar
 
 ## What HW2 builds
 
-A **generic two-agent debate engine** — personas and motion are loaded from `config/debate.json`. The headline differentiator: most submissions will be one-shot scripts on a hardcoded topic; this one is a debate platform where the topic and personas are interchangeable.
-
-**Default demo:** *"Messi vs Ronaldo — who is the greatest footballer of all time?"* This is the persona pair the user chose; ship at least one other demo persona config (e.g. *"Python vs JavaScript: which is the better first language?"*) to make the genericity visible.
+A debate system on the hardcoded motion *"Who is the greatest footballer of all time: Lionel Messi or Cristiano Ronaldo?"* — the user picked this topic and explicitly rejected generic-engine framing on 2026-05-20 ("we chose messi vs ronaldo and we want it hardcoded"). MessiAgent and RonaldoAgent are concrete classes (no persona-swap at runtime). Their prompts + era variants still live in `config/personas/messi.json` and `ronaldo.json` so they can be tuned without code edits.
 
 **Six agent classes**, all subclassing one `BaseAgent`:
 
 | Agent | Role | Affects scoring? |
 | --- | --- | --- |
-| **Judge** (father) | Routes every message, enforces structure, scores running aggregate, declares the winner. Does *not* know the topic in advance — only the rules. | — (it IS the scorer) |
-| **Debater-A** (default: Messi) | Pro side. Persona loaded from `config/personas/<name>.json`. | Yes |
-| **Debater-B** (default: Ronaldo) | Con side. Persona loaded from `config/personas/<name>.json`. | Yes |
-| **Commentator** | Color-commentary one-liner between rounds. | No — flavor only |
-| **Crowd** | Audience sentiment + emoji reaction after each debater turn. | No — flavor only |
-| **Fact-Checker** | Annotates dubious claims for the human audience. **The judge ignores it** (judge scores rhetoric, not facts — per the brief). | **No** |
+| **JudgeAgent** (father) | Routes every message, enforces structure, scores running aggregate, declares the winner. Does *not* know the topic in advance — only the rules. | — (it IS the scorer) |
+| **MessiAgent** (debater-a) | Argues Messi is the greatest. Inherits from shared `DebaterAgent` base for DRY (citations, mutual-reference enforcement, JSON schema). | Yes |
+| **RonaldoAgent** (debater-b) | Argues Ronaldo is the greatest. Same shared base. | Yes |
+| **CommentatorAgent** | Color-commentary one-liner between rounds. | No — flavor only |
+| **CrowdAgent** | Audience sentiment + emoji reaction after each debater turn. | No — flavor only |
+| **FactCheckerAgent** | Annotates dubious claims for the human audience. **The judge ignores it** (judge scores rhetoric, not facts — per the brief). | **No** |
 
 ### Debate flow (per the spec)
 
@@ -112,7 +110,7 @@ Judge scoring categories: **Logic, Evidence-as-rhetoric, Persuasiveness, Counter
 5. **Web search is MANDATORY** for both debaters. Citations array is required in their JSON reply.
 6. **Fact-Checker never scores.** It is a viewer-side annotation only. Judge does not consult it.
 7. **No rhetorical cards system.** Explicitly cut during scoping.
-8. **Personas live in config**, never in code. Hardcoding "Messi" or "Ronaldo" into any agent class is a bug.
+8. **Personas (prompts + eras) live in config; the agent classes are concrete.** MessiAgent and RonaldoAgent are explicit subclasses that load their respective JSON. There is no `--persona-a` / `--persona-b` CLI flag and no runtime persona swap.
 9. **Terminal menu is the canonical test interface.** HTML UI is bonus, not the grading surface.
 10. **No ties.** Even 51/49 is acceptable; equal scores must be broken by the judge.
 
@@ -120,7 +118,7 @@ Judge scoring categories: **Logic, Evidence-as-rhetoric, Persuasiveness, Counter
 
 The brief grades the **terminal menu**. The HTML chat UI is for differentiation.
 
-- **Canonical (graded): terminal menu** under `src/debate_ai/cli/`. Typer-driven, keyboard-operated, exposes: *Start debate*, *Choose personas*, *Choose motion*, *Show last verdict*, *Open replay*, *Tail logs*. Every menu item is a thin wrapper around the SDK — operators can also call the SDK directly.
+- **Canonical (graded): terminal menu** under `src/debate_ai/cli/`. Typer-driven, keyboard-operated, exposes: *Start debate*, *Show last verdict*, *Open replay*, *Tail logs*, *Show config / version*. Every menu item is a thin wrapper around the SDK — operators can also call the SDK directly. (No "choose persona/motion" items — topic is hardcoded.)
 - **Bonus (differentiator): HTML chat UI.** FastAPI under `src/debate_ai/ui/` exposes `GET /` (single-page HTML/CSS/JS chat) and `GET /stream` (Server-Sent Events pushing `agent_typing`, `agent_message`, `score_update`, `round_changed`, `verdict`). Telegram-style bubbles, live scoreboard side panel, confidence meter, round badge. No JS framework, no build step.
 - **One event stream feeds both.** The orchestrator emits `UIEvent`s through a single emitter; the CLI menu's "Watch live" subscribes via in-process queue, the HTML page via SSE. Same source of truth.
 - **Replay export.** Each debate persists its full event log as JSON *and* renders to a styled HTML file. README screenshots come from these replays.
@@ -135,7 +133,9 @@ src/debate_ai/
     menu.py                         # keyboard-driven menu loop (canonical test UI)
   agents/
     base_agent.py                   # ABC + mixins for memory / JSON / tools
-    debater_agent.py                # persona-driven; A and B are instances
+    debater_agent.py                # shared DebaterAgent base — citations / mutual ref
+    messi_agent.py                  # MessiAgent — loads personas/messi.json
+    ronaldo_agent.py                # RonaldoAgent — loads personas/ronaldo.json
     judge_agent.py                  # router + scorer
     commentator_agent.py
     crowd_agent.py

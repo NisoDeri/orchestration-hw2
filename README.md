@@ -1,12 +1,12 @@
-# debate-ai — a generic two-agent debate engine
+# debate-ai — Messi vs Ronaldo, settled by Claude
 
-> **HW2, Orchestration course** (Dr. Yoram Segal). Generic two-agent debate engine driven by Anthropic Claude. Ships with *Messi vs Ronaldo: who is the greatest footballer of all time?* as the default demo, but the motion and personas are swap-out config — the same code runs *Python vs JavaScript*, *Plato vs Aristotle*, *freshwater fish vs saltwater fish*, anything.
+> **HW2, Orchestration course** (Dr. Yoram Segal). Two Anthropic Claude agents debate *"Who is the greatest footballer of all time: Lionel Messi or Cristiano Ronaldo?"* under the supervision of a third Claude agent who scores and declares a winner. Topic and personas are hardcoded; the prompts that drive each agent live in JSON so they can be tuned without code edits.
 
 ---
 
 ## 1. What it is
 
-Three primary agents — a **Judge** (father / orchestrator), and two **Debaters** — argue a configurable motion. Three supporting agents add color (**Commentator**), audience reactions (**Crowd**), and live claim annotations for the human viewer (**Fact-Checker**). All six are subclasses of one `BaseAgent`. Each agent is bound to a *different* Anthropic **Agent Skill** so the debate doesn't collapse into mutual agreement.
+Three primary agents — a **Judge** (father / orchestrator), and two debaters (**MessiAgent**, **RonaldoAgent**) — argue the motion. Three supporting agents add color (**Commentator**), audience reactions (**Crowd**), and live claim annotations for the human viewer (**Fact-Checker**). All six are subclasses of one `BaseAgent`. Each agent is bound to a *different* Anthropic **Agent Skill** so the debate doesn't collapse into mutual agreement.
 
 The engine enforces the lecturer's hard rules:
 
@@ -78,15 +78,14 @@ uv run debate-ai start
 # → opens http://localhost:8000 in your browser, debate streams live
 ```
 
-### Choosing motion + personas
+### Tuning the debater prompts
 
-```powershell
-uv run debate-ai run --motion "Python vs JavaScript: which is the better first language?" `
-                     --persona-a python `
-                     --persona-b javascript
-```
+The motion is fixed (Messi vs Ronaldo). What's tunable without code edits:
 
-Persona files live in `config/personas/*.json`. Add a file, you get a new debater.
+- `config/personas/messi.json` — Messi's system prompt, style notes, era variants.
+- `config/personas/ronaldo.json` — Ronaldo's system prompt, style notes, era variants.
+
+Edit those files, run again — no rebuild required.
 
 ## 4. Configuration
 
