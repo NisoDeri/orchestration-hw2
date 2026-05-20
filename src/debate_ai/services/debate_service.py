@@ -77,7 +77,10 @@ class DebateService:
         rounds = RoundManager(self.setup)
         watchdog = Watchdog(self.setup.watchdog, self.logger)
         emitter = EventEmitter(state.debate_id)
-        scoring = ScoringService(self.setup.judge)
+        scoring = ScoringService(
+            self.setup.judge.agreement_keywords,
+            self.setup.judge.drift_window_turns,
+        )
         mgr = DebateManager(
             agents=agents, state=state, memory=memory,
             rounds=rounds, watchdog=watchdog, emitter=emitter,

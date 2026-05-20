@@ -112,7 +112,7 @@ class DebateManager:
             )
         except (WatchdogTimeoutError, AgentUnrecoverableError):
             return
-        adjusted = self.scoring.apply_lie_catch_bonus(score, reply)
+        adjusted = self.scoring.apply_lie_catch_bonus(score, reply, [])
         self.state.scoreboard.add_turn(role, adjusted)
         self.emitter.emit("score_update", {
             "agent": role, "score": adjusted.model_dump(),
