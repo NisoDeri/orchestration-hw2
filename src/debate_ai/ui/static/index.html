@@ -91,7 +91,7 @@ const chat=document.getElementById('chat'), scoreA=document.getElementById('scor
 let totalA=0, totalB=0;
 const Q=[]; let busy=false, userScrolled=false;
 chat.addEventListener('scroll',()=>{userScrolled=chat.scrollHeight-chat.scrollTop-chat.clientHeight>100;});
-function scr(){if(!userScrolled)scr();}
+function scr(){if(!userScrolled)chat.scrollTop=chat.scrollHeight;}
 function enq(fn){Q.push(fn); if(!busy)drain();}
 function drain(){if(!Q.length){busy=false;return;} busy=true; Q.shift()(()=>setTimeout(drain,120));}
 function now(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
