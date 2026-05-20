@@ -139,7 +139,7 @@ tests/{unit,integration}/
 
 ## 7. Live demo & screenshots
 
-Screenshots and the full session-1 transcript are in `docs/screenshots/` and `docs/session1.md`. Replay artifacts (one styled HTML file per debate) are written to `replays/`.
+To see the live UI, run `uv run debate-ai start` — it opens a browser with the SSE-driven chat UI. Terminal output (the graded interface) is shown by `uv run debate-ai run`.
 
 ## 8. Group
 
