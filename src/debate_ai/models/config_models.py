@@ -1,8 +1,4 @@
-"""Typed Pydantic models for every JSON file under ``config/``.
-
-ConfigLoader parses raw JSON into these. Each model declares ``version`` so
-``shared.version.assert_config_version`` can fail-fast on mismatch.
-"""
+"""Typed Pydantic models for every JSON file under ``config/``."""
 
 from __future__ import annotations
 
@@ -12,15 +8,11 @@ _VERSION_RX = r"^\d+\.\d+$"
 
 
 class _Versioned(BaseModel):
-    """Common base — every config carries a ``version`` string."""
-
     model_config = ConfigDict(extra="allow")
     version: str = Field(..., pattern=_VERSION_RX)
 
 
 class VersionsConfig(_Versioned):
-    """``config/versions.json`` — the cross-check declarations."""
-
     code: str = Field(..., pattern=_VERSION_RX)
     configs: dict[str, str] = Field(...)
 
@@ -54,8 +46,6 @@ class ReplayConfig(BaseModel):
 
 
 class SetupConfig(_Versioned):
-    """``config/setup.json`` — pings, era-swap, watchdog, judge, UI, replay."""
-
     pings_per_side: int = Field(..., ge=1, le=50)
     era_swap_round_index: int | None = Field(None)
     era_swap_strategy: str = "contrasting"
@@ -67,16 +57,12 @@ class SetupConfig(_Versioned):
 
 
 class DebateConfigJson(_Versioned):
-    """``config/debate.json`` — default motion + persona pair."""
-
     motion: str = Field(..., min_length=10)
     persona_a: str = Field(..., min_length=1)
     persona_b: str = Field(..., min_length=1)
 
 
 class AgentModelConfig(BaseModel):
-    """Per-role Anthropic call config: model, tools, skill, etc."""
-
     model_config = ConfigDict(extra="allow")
     model: str
     temperature: float = Field(..., ge=0, le=2)
@@ -133,8 +119,6 @@ class LoggingConfig(_Versioned):
 
 
 class FactClaim(BaseModel):
-    """One entry in ``config/facts.json::claims``."""
-
     model_config = ConfigDict(extra="allow")
     value: int | float | str
     as_of: str

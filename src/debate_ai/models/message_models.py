@@ -1,9 +1,4 @@
-"""Pydantic message contracts — every JSON shape an agent emits or relays.
-
-Per HW2 brief §8.3.8 communication is JSON. Schemas here are the single
-source of truth; agents validate against them, watchdog catches violations
-and triggers a stricter retry.
-"""
+"""Pydantic message contracts for all agent JSON shapes."""
 
 from __future__ import annotations
 
@@ -25,10 +20,7 @@ def _now() -> datetime:
 
 
 class DebaterReply(BaseModel):
-    """A debater's turn reply. Citations + references_opponent are mandatory."""
-
     model_config = ConfigDict(extra="forbid")
-
     argument: str = Field(..., min_length=20, max_length=4000)
     confidence: float = Field(..., ge=0.0, le=1.0)
     attack_points: list[str] = Field(default_factory=list)
@@ -38,8 +30,6 @@ class DebaterReply(BaseModel):
 
 
 class CommentaryReply(BaseModel):
-    """Color-commentary line between rounds."""
-
     model_config = ConfigDict(extra="forbid")
     commentary: str = Field(..., min_length=5, max_length=400)
     tone: Literal["neutral", "favouring_a", "favouring_b"] = "neutral"
@@ -47,8 +37,6 @@ class CommentaryReply(BaseModel):
 
 
 class CrowdReply(BaseModel):
-    """Audience emoji + one-liner reaction to a debater turn."""
-
     model_config = ConfigDict(extra="forbid")
     envelope_ref: str
     emojis: list[str] = Field(..., min_length=1, max_length=5)
@@ -57,8 +45,6 @@ class CrowdReply(BaseModel):
 
 
 class FactClaimAnnotation(BaseModel):
-    """One claim the fact-checker annotated within a debater turn."""
-
     model_config = ConfigDict(extra="forbid")
     quote: str = Field(..., min_length=1)
     verdict: Literal["incorrect", "correct", "misleading", "unverifiable"]
@@ -69,16 +55,12 @@ class FactClaimAnnotation(BaseModel):
 
 
 class FactCheckReply(BaseModel):
-    """Multi-claim annotation for one debater envelope."""
-
     model_config = ConfigDict(extra="forbid")
     envelope_ref: str
     claims: list[FactClaimAnnotation] = Field(default_factory=list)
 
 
 class TurnScore(BaseModel):
-    """Per-turn score from the Judge. Each axis is 0..10."""
-
     model_config = ConfigDict(extra="forbid")
     logic: float = Field(..., ge=0.0, le=10.0)
     evidence: float = Field(..., ge=0.0, le=10.0)
@@ -98,8 +80,6 @@ class RubricBreakdown(BaseModel):
 
 
 class Verdict(BaseModel):
-    """The Judge's final ruling. No ties — schema enforces it."""
-
     model_config = ConfigDict(extra="forbid")
     winner: Literal["debater-a", "debater-b"]
     score_a: float = Field(..., ge=0.0)
@@ -126,12 +106,6 @@ AgentPayload = Annotated[
 
 
 class JudgeEnvelope(BaseModel):
-    """Universal wrapper for every relayed message in the debate.
-
-    Per brief §8.3.7 every utterance routes child -> father -> child. This
-    envelope is the unit of routing.
-    """
-
     model_config = ConfigDict(extra="forbid")
     envelope_id: str = Field(default_factory=_new_id)
     round: int = Field(..., ge=0)
@@ -150,11 +124,6 @@ class JudgeEnvelope(BaseModel):
 
 
 class UIEvent(BaseModel):
-    """Event the orchestrator emits for both CLI watch and HTML SSE.
-
-    The ``payload`` shape varies by ``kind``; clients dispatch on ``kind``.
-    """
-
     model_config = ConfigDict(extra="forbid")
     debate_id: str
     seq: int = Field(..., ge=0)

@@ -1,10 +1,4 @@
-"""DebateManager — the core orchestration loop.
-
-Owns the debate lifecycle: opening -> (rebuttal | era_swap)* -> closing ->
-verdict. Routes envelopes child -> father -> child, drives the watchdog,
-fires events, and delegates scoring to the Judge.
-"""
-
+"""DebateManager — the core orchestration loop."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -25,36 +19,24 @@ from debate_ai.shared.exceptions import (
 )
 from debate_ai.shared.logger import FifoLogger
 
+_DEBATERS = (AgentRole.DEBATER_A.value, AgentRole.DEBATER_B.value)
+_SUPPORT = (AgentRole.COMMENTATOR.value, AgentRole.CROWD.value, AgentRole.FACT_CHECKER.value)
+
 
 class DebateManager:
-    """Run one complete debate from opening to verdict."""
-
-    def __init__(
-        self,
-        agents: dict[str, Any],
-        state: DebateState,
-        memory: ConversationMemory,
-        rounds: RoundManager,
-        watchdog: Watchdog,
-        emitter: EventEmitter,
-        scoring: ScoringService,
-        logger: FifoLogger,
-    ) -> None:
-        self.agents = agents
-        self.state = state
-        self.memory = memory
-        self.rounds = rounds
-        self.watchdog = watchdog
-        self.emitter = emitter
-        self.scoring = scoring
-        self.logger = logger
+    def __init__(self, agents: dict[str, Any], state: DebateState,
+                 memory: ConversationMemory, rounds: RoundManager,
+                 watchdog: Watchdog, emitter: EventEmitter,
+                 scoring: ScoringService, logger: FifoLogger) -> None:
+        self.agents, self.state, self.memory = agents, state, memory
+        self.rounds, self.watchdog, self.emitter = rounds, watchdog, emitter
+        self.scoring, self.logger = scoring, logger
 
     @property
     def judge(self) -> JudgeAgent:
         return self.agents[AgentRole.JUDGE.value]
 
     def run(self) -> DebateState:
-        """Execute the full debate and return the final state."""
         self.emitter.emit("debate_started", {"motion": self.state.cfg.motion})
         self._run_rounds()
         self._issue_verdict()
@@ -67,8 +49,7 @@ class DebateManager:
         while not self.rounds.is_debate_over():
             kind = self.rounds.current_kind()
             self.emitter.emit("round_changed", {
-                "round": self.rounds.current_round,
-                "kind": kind.value,
+                "round": self.rounds.current_round, "kind": kind.value,
             })
             self._run_one_round(kind)
             self.rounds.advance()
@@ -76,11 +57,10 @@ class DebateManager:
     def _run_one_round(self, kind: Any) -> None:
         rnd = self.rounds.current_round
         env_kind = EnvelopeKind(kind.value)
-        for debater_role in (AgentRole.DEBATER_A.value, AgentRole.DEBATER_B.value):
-            self._debater_turn(debater_role, env_kind, rnd)
+        for role in _DEBATERS:
+            self._debater_turn(role, env_kind, rnd)
 
     def _debater_turn(self, role: str, kind: EnvelopeKind, rnd: int) -> None:
-        debater = self.agents[role]
         envelope = self.judge.relay(
             sender=_opponent(role), recipient=role,
             kind=kind, payload=self._last_payload(role), round_index=rnd,
@@ -88,10 +68,9 @@ class DebateManager:
         self.memory.append(envelope)
         self.emitter.emit("agent_started_typing", {"agent": role})
         try:
-            reply = self.watchdog.call_with_timeout(role, debater.respond, envelope)
+            reply = self.watchdog.call_with_timeout(role, self.agents[role].respond, envelope)
         except (WatchdogTimeoutError, AgentUnrecoverableError):
-            self.logger.log("ERROR", source="debate_manager",
-                            kind="agent_failed", agent=role)
+            self.logger.log("ERROR", source="debate_manager", kind="agent_failed", agent=role)
             return
         reply_env = self.judge.relay(
             sender=role, recipient=_opponent(role),
@@ -99,49 +78,34 @@ class DebateManager:
         )
         self.memory.append(reply_env)
         self.state.history.append(reply_env)
-        self.emitter.emit("agent_message", {
-            "agent": role, "round": rnd, "argument": reply.argument,
-        })
+        self.emitter.emit("agent_message", {"agent": role, "round": rnd, "argument": reply.argument})
         self._score_turn(role, reply)
         self._run_support_agents(reply_env)
 
     def _score_turn(self, role: str, reply: Any) -> None:
         try:
-            score = self.watchdog.call_with_timeout(
-                "judge", self.judge.score_turn, reply,
-            )
+            score = self.watchdog.call_with_timeout("judge", self.judge.score_turn, reply)
         except (WatchdogTimeoutError, AgentUnrecoverableError):
             return
         adjusted = self.scoring.apply_lie_catch_bonus(score, reply, [])
         self.state.scoreboard.add_turn(role, adjusted)
-        self.emitter.emit("score_update", {
-            "agent": role, "score": adjusted.model_dump(),
-        })
+        self.emitter.emit("score_update", {"agent": role, "score": adjusted.model_dump()})
 
     def _run_support_agents(self, envelope: Any) -> None:
-        for role in (AgentRole.COMMENTATOR.value, AgentRole.CROWD.value,
-                     AgentRole.FACT_CHECKER.value):
+        for role in _SUPPORT:
             if role not in self.agents:
                 continue
             try:
-                result = self.watchdog.call_with_timeout(
-                    role, self.agents[role].respond, envelope,
-                )
+                result = self.watchdog.call_with_timeout(role, self.agents[role].respond, envelope)
                 self.emitter.emit(_support_event_kind(role), result.model_dump())
             except (WatchdogTimeoutError, AgentUnrecoverableError):
-                self.logger.log("WARN", source="debate_manager",
-                                kind="support_failed", agent=role)
+                self.logger.log("WARN", source="debate_manager", kind="support_failed", agent=role)
 
     def _issue_verdict(self) -> None:
-        scoreboard = self.state.scoreboard
         try:
-            verdict = self.watchdog.call_with_timeout(
-                "judge", self.judge.verdict, scoreboard,
-            )
+            verdict = self.watchdog.call_with_timeout("judge", self.judge.verdict, self.state.scoreboard)
         except (WatchdogTimeoutError, VerdictTieError, AgentUnrecoverableError):
-            verdict = fallback_verdict(
-                scoreboard, "Deterministic fallback after judge failure.",
-            )
+            verdict = fallback_verdict(self.state.scoreboard, "Deterministic fallback after judge failure.")
         self.state.verdict = verdict
         self.emitter.emit("verdict", verdict.model_dump())
 
@@ -153,15 +117,12 @@ class DebateManager:
 
 
 def _opponent(role: str) -> str:
-    if role == AgentRole.DEBATER_A.value:
-        return AgentRole.DEBATER_B.value
-    return AgentRole.DEBATER_A.value
+    return AgentRole.DEBATER_B.value if role == AgentRole.DEBATER_A.value else AgentRole.DEBATER_A.value
 
 
 def _support_event_kind(role: str) -> str:
-    mapping = {
+    return {
         AgentRole.COMMENTATOR.value: "commentary",
         AgentRole.CROWD.value: "crowd_reaction",
         AgentRole.FACT_CHECKER.value: "fact_check",
-    }
-    return mapping.get(role, "agent_message")
+    }.get(role, "agent_message")
