@@ -21,7 +21,7 @@ from debate_ai.shared.gatekeeper import Gatekeeper
 from debate_ai.shared.logger import FifoLogger
 from debate_ai.tools.wikipedia_mcp import WikipediaMCP
 
-_CONFIG_DIR = Path(__file__).parents[2] / "config"
+_CONFIG_DIR = Path(__file__).parents[3] / "config"
 
 
 def run_debate(
@@ -76,6 +76,12 @@ def get_config(config_dir: Path | None = None) -> dict[str, Any]:
         "era_swap_round": setup.era_swap_round_index,
         "personas": [debate.persona_a, debate.persona_b],
     }
+
+
+def run_demo(config_dir: Path | None = None) -> DebateResult:
+    """Run a demo debate with pre-scripted agents (no API key needed)."""
+    from debate_ai.services.demo_service import run_demo as _run
+    return _run(config_dir or _CONFIG_DIR)
 
 
 def _make_client() -> anthropic.Anthropic:

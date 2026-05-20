@@ -1,14 +1,8 @@
-"""CLI entry point — thin Typer shell over the SDK.
-
-No business logic here. ``debate-ai`` runs the interactive menu;
-``debate-ai run`` runs a one-shot debate; ``debate-ai start`` launches
-the web UI.
-"""
-
+"""CLI entry point — thin Typer shell over the SDK."""
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 from rich.console import Console
@@ -19,7 +13,6 @@ console = Console()
 
 @app.callback(invoke_without_command=True)
 def _menu(ctx: typer.Context) -> None:
-    """Interactive terminal menu (default when no subcommand given)."""
     if ctx.invoked_subcommand is not None:
         return
     from debate_ai.cli.menu import interactive_menu
@@ -28,18 +21,20 @@ def _menu(ctx: typer.Context) -> None:
 
 @app.command()
 def run(
-    config_dir: Annotated[
-        Path | None, typer.Option("--config", help="Config directory")
-    ] = None,
+    config_dir: Annotated[Path | None, typer.Option("--config", help="Config directory")] = None,
 ) -> None:
     """Run a single debate and print the result."""
     from debate_ai.sdk.sdk import run_debate
     console.print("[bold]Starting Messi vs Ronaldo debate…[/bold]")
-    result = run_debate(config_dir=config_dir)
-    console.print(f"\n[bold green]Winner: {result.verdict.winner}[/bold green]")
-    console.print(f"Score: {result.verdict.score_a:.1f} – {result.verdict.score_b:.1f}")
-    console.print(f"Reasoning: {result.verdict.reasoning}")
-    console.print(f"Cost: ${result.cost_usd:.4f}")
+    _print_result(run_debate(config_dir=config_dir))
+
+
+@app.command()
+def demo() -> None:
+    """Run a demo debate with pre-scripted agents (no API key needed)."""
+    from debate_ai.sdk.sdk import run_demo
+    console.print("[bold]Running demo debate (pre-scripted, no API key)…[/bold]\n")
+    _print_result(run_demo())
 
 
 @app.command()
@@ -61,3 +56,11 @@ def config() -> None:
     console.print(f"Pings per side: {cfg['pings_per_side']}")
     console.print(f"Era-swap round: {cfg['era_swap_round']}")
     console.print(f"Personas: {', '.join(cfg['personas'])}")
+
+
+def _print_result(result: Any) -> None:
+    v = result.verdict
+    console.print(f"\n[bold green]Winner: {v.winner}[/bold green]")
+    console.print(f"Score: {v.score_a:.1f} – {v.score_b:.1f}")
+    console.print(f"Reasoning: {v.reasoning}")
+    console.print(f"Turns: {result.turn_count}  Cost: ${result.cost_usd:.4f}")
