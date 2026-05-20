@@ -133,6 +133,7 @@ class UIEvent(BaseModel):
         "agent_started_typing", "agent_message",
         "score_update", "drift_warning",
         "fact_check", "commentary", "crowd_reaction",
+        "judge_guidance",
         "verdict", "debate_ended", "error",
     ]
     payload: dict[str, Any] = Field(default_factory=dict)
