@@ -1,0 +1,89 @@
+{
+  "version": "1.00",
+  "_comment": "Per-agent Anthropic model, temperature, skill_id, tools, tool_choice, betas. Resolved by agents/factory.py at boot.",
+
+  "default_model": "claude-opus-4-7",
+  "default_betas": ["skills-2025-10-02", "code-execution-2025-08-25"],
+
+  "agents": {
+    "judge": {
+      "model": "claude-opus-4-7",
+      "temperature": 0.4,
+      "max_tokens": 1500,
+      "skill_id": "scoring-rubric",
+      "tools": [
+        { "type": "web_fetch_20250910", "name": "web_fetch", "max_uses": 2 }
+      ],
+      "tool_choice": { "type": "auto" },
+      "cache_system": true
+    },
+
+    "debater-a": {
+      "model": "claude-opus-4-7",
+      "temperature": 0.8,
+      "max_tokens": 800,
+      "skill_id": "rhetorical-aggression",
+      "tools": [
+        {
+          "type": "web_search_20260209",
+          "name": "web_search",
+          "max_uses": 3
+        }
+      ],
+      "tool_choice": { "type": "any" },
+      "cache_system": true
+    },
+
+    "debater-b": {
+      "model": "claude-opus-4-7",
+      "temperature": 0.8,
+      "max_tokens": 800,
+      "skill_id": "evidence-marshalling",
+      "tools": [
+        {
+          "type": "web_search_20260209",
+          "name": "web_search",
+          "max_uses": 3
+        }
+      ],
+      "tool_choice": { "type": "any" },
+      "cache_system": true
+    },
+
+    "commentator": {
+      "model": "claude-haiku-4-5-20251001",
+      "temperature": 0.9,
+      "max_tokens": 80,
+      "skill_id": "color-commentary",
+      "tools": [],
+      "tool_choice": { "type": "auto" },
+      "cache_system": false
+    },
+
+    "crowd": {
+      "model": "claude-haiku-4-5-20251001",
+      "temperature": 1.0,
+      "max_tokens": 60,
+      "skill_id": "audience-sentiment",
+      "tools": [],
+      "tool_choice": { "type": "auto" },
+      "cache_system": false
+    },
+
+    "fact-checker": {
+      "model": "claude-sonnet-4-6",
+      "temperature": 0.2,
+      "max_tokens": 400,
+      "skill_id": "claim-verification",
+      "tools": [
+        {
+          "type": "web_search_20260209",
+          "name": "web_search",
+          "max_uses": 2
+        }
+      ],
+      "tool_choice": { "type": "auto" },
+      "cache_system": false
+    }
+  }
+}
