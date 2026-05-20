@@ -1,9 +1,4 @@
-"""Interactive terminal menu for the debate CLI.
-
-Presents numbered options. Keeps the session alive until the user
-chooses to exit. No business logic — delegates everything to the SDK.
-"""
-
+"""Interactive terminal menu for the debate CLI."""
 from __future__ import annotations
 
 from rich.console import Console
@@ -15,19 +10,19 @@ console = Console()
 _MENU = """
 [bold cyan]Messi vs Ronaldo Debate Engine[/bold cyan]
 
-  [1] Run a debate
-  [2] Show config
-  [3] List personas
-  [4] Launch web UI
+  [1] Run a debate          (requires ANTHROPIC_API_KEY)
+  [2] Run demo              (pre-scripted, no API key needed)
+  [3] Show config
+  [4] List personas
+  [5] Launch web UI
   [0] Exit
 """
 
 
 def interactive_menu() -> None:
-    """Keyboard loop — runs until the user picks 0."""
     console.print(Panel(_MENU.strip(), title="debate-ai", border_style="blue"))
     while True:
-        choice = Prompt.ask("[bold]Choose[/bold]", choices=["0", "1", "2", "3", "4"])
+        choice = Prompt.ask("[bold]Choose[/bold]", choices=["0", "1", "2", "3", "4", "5"])
         if choice == "0":
             console.print("[dim]Goodbye.[/dim]")
             break
@@ -38,10 +33,12 @@ def _dispatch(choice: str) -> None:
     if choice == "1":
         _run_debate()
     elif choice == "2":
-        _show_config()
+        _run_demo()
     elif choice == "3":
-        _list_personas()
+        _show_config()
     elif choice == "4":
+        _list_personas()
+    elif choice == "5":
         _launch_ui()
 
 
@@ -54,6 +51,16 @@ def _run_debate() -> None:
         console.print(f"Score: {result.verdict.score_a:.1f} – {result.verdict.score_b:.1f}")
         console.print(f"Reasoning: {result.verdict.reasoning}")
         console.print(f"Cost: ${result.cost_usd:.4f}")
+    except Exception as exc:  # noqa: BLE001
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+
+
+def _run_demo() -> None:
+    from debate_ai.sdk.sdk import run_demo
+    console.print("[bold]Running demo debate (pre-scripted)…[/bold]\n")
+    try:
+        result = run_demo()
+        console.print(f"\nScore: {result.verdict.score_a:.1f} – {result.verdict.score_b:.1f}")
     except Exception as exc:  # noqa: BLE001
         console.print(f"[bold red]Error:[/bold red] {exc}")
 
