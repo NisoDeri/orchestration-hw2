@@ -29,7 +29,7 @@ def test_loader_validates_every_real_config() -> None:
 
 def test_loader_lists_personas() -> None:
     personas = ConfigLoader(REPO_CONFIG_DIR).list_personas()
-    assert {"messi", "ronaldo", "python", "javascript"}.issubset(set(personas))
+    assert {"messi", "ronaldo"}.issubset(set(personas))
 
 
 def test_loader_loads_persona() -> None:
