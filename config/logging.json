@@ -1,0 +1,17 @@
+{
+  "version": "1.00",
+  "_comment": "Structured JSON logging with FIFO file rotation. Per HW2 brief §8.6: e.g. 20 files x 500 lines.",
+
+  "dir": "logs",
+  "max_files": 20,
+  "lines_per_file": 500,
+  "default_level": "INFO",
+
+  "level_overrides": {
+    "debate_ai.tools.web_search_tool": "DEBUG",
+    "debate_ai.orchestration.watchdog": "DEBUG",
+    "debate_ai.shared.gatekeeper": "INFO"
+  },
+
+  "tail_default_n": 100
+}
