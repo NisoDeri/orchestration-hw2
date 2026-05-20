@@ -1,0 +1,54 @@
+{
+  "version": "1.00",
+  "_comment": "Fact-Checker's local knowledge base. Walked in lookup_order; first non-unverifiable hit wins. Used as priority-1 source before Wikipedia MCP and web_search.",
+
+  "lookup_order": ["facts_json", "wikipedia_mcp", "web_search"],
+
+  "claims": {
+    "ballon_dor_count_messi": {
+      "value": 8,
+      "as_of": "2024",
+      "source": "https://www.francefootball.fr/news/ballon-dor-2024-lionel-messi",
+      "severity_on_mismatch": 0.6
+    },
+    "ballon_dor_count_ronaldo": {
+      "value": 5,
+      "as_of": "2024",
+      "source": "https://www.francefootball.fr/",
+      "severity_on_mismatch": 0.6
+    },
+    "champions_league_titles_messi": {
+      "value": 4,
+      "as_of": "2024",
+      "source": "https://www.uefa.com/uefachampionsleague/",
+      "severity_on_mismatch": 0.5
+    },
+    "champions_league_titles_ronaldo": {
+      "value": 5,
+      "as_of": "2024",
+      "source": "https://www.uefa.com/uefachampionsleague/",
+      "severity_on_mismatch": 0.5
+    },
+    "fifa_world_cup_messi": {
+      "value": 1,
+      "as_of": "2022",
+      "source": "https://www.fifa.com/tournaments/mens/worldcup/qatar2022",
+      "severity_on_mismatch": 0.9
+    },
+    "fifa_world_cup_ronaldo": {
+      "value": 0,
+      "as_of": "2024",
+      "source": "https://www.fifa.com/",
+      "severity_on_mismatch": 0.9
+    }
+  },
+
+  "patterns": [
+    { "regex": "(\\d+)\\s+Ballon d'Ors?\\s+(?:for|by)\\s+Messi", "claim_id": "ballon_dor_count_messi" },
+    { "regex": "Messi\\s+has\\s+(\\d+)\\s+Ballon d'Ors?", "claim_id": "ballon_dor_count_messi" },
+    { "regex": "(\\d+)\\s+Ballon d'Ors?\\s+(?:for|by)\\s+Ronaldo", "claim_id": "ballon_dor_count_ronaldo" },
+    { "regex": "Ronaldo\\s+has\\s+(\\d+)\\s+Ballon d'Ors?", "claim_id": "ballon_dor_count_ronaldo" },
+    { "regex": "(\\d+)\\s+Champions League titles?\\s+(?:for|by)\\s+Messi", "claim_id": "champions_league_titles_messi" },
+    { "regex": "(\\d+)\\s+Champions League titles?\\s+(?:for|by)\\s+Ronaldo", "claim_id": "champions_league_titles_ronaldo" }
+  ]
+}
