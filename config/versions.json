@@ -1,0 +1,14 @@
+{
+  "version": "1.00",
+  "_comment": "Required code+config versions. Startup fails on mismatch. Bump any value here when its meaning changes; older configs become invalid.",
+  "code": "1.00",
+  "configs": {
+    "setup": "1.00",
+    "debate": "1.00",
+    "models": "1.00",
+    "rate_limits": "1.00",
+    "logging": "1.00",
+    "facts": "1.00",
+    "personas": "1.00"
+  }
+}

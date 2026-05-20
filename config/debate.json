@@ -1,0 +1,17 @@
+{
+  "version": "1.00",
+  "_comment": "Default debate motion and persona pair. CLI flags override this.",
+
+  "motion": "Who is the greatest footballer of all time: Lionel Messi or Cristiano Ronaldo?",
+  "persona_a": "messi",
+  "persona_b": "ronaldo",
+
+  "_alt_demos": {
+    "_comment": "Reference list of other demo motion/persona pairs we ship to prove the genericity.",
+    "tabs_vs_spaces": {
+      "motion": "Which is the better first programming language: Python or JavaScript?",
+      "persona_a": "python",
+      "persona_b": "javascript"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "version": "1.00",
+  "_comment": "Top-level debate tunables. Per HW2 brief: zero hardcoded values — every knob lives here.",
+
+  "pings_per_side": 10,
+  "_pings_per_side_doc": "10 = full per HW2 §8.3.3. Brief permits 5 with README note (no grade reduction). User chose 10.",
+
+  "era_swap_round_index": 4,
+  "era_swap_strategy": "contrasting",
+  "_era_swap_doc": "Round (1-indexed) that becomes the era-swap. null = disabled. Strategy is one of random|first|latest|contrasting.",
+
+  "agents_enabled": {
+    "judge": true,
+    "debater_a": true,
+    "debater_b": true,
+    "commentator": true,
+    "crowd": true,
+    "fact_checker": true
+  },
+
+  "watchdog": {
+    "timeout_s_per_call": 60,
+    "max_restarts_per_agent": 3,
+    "keepalive_interval_s": 5,
+    "on_unrecoverable": "force_verdict_from_aggregate"
+  },
+
+  "judge": {
+    "verdict_no_tie_retries": 1,
+    "drift_window_turns": 2,
+    "agreement_keywords": ["yes,", "true,", "correct,", "agreed", "exactly"]
+  },
+
+  "ui": {
+    "host": "127.0.0.1",
+    "port": 8000,
+    "open_browser_on_start": true
+  },
+
+  "replay": {
+    "dir": "replays",
+    "playback_speed_default": 5.0
+  }
+}
