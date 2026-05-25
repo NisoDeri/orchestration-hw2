@@ -1,5 +1,7 @@
 # debate-ai — Messi vs Ronaldo, settled by Claude
 
+[![ci](https://github.com/NisoDeri/orchestration-hw2/actions/workflows/ci.yml/badge.svg)](https://github.com/NisoDeri/orchestration-hw2/actions/workflows/ci.yml)
+
 > **HW2, Orchestration course** (Dr. Yoram Segal). Two Anthropic Claude agents debate *"Who is the greatest footballer of all time: Lionel Messi or Cristiano Ronaldo?"* under the supervision of a third Claude agent who scores and declares a winner. Topic and personas are loaded from config; the prompts that drive each agent live in JSON so they can be tuned without code edits.
 
 ---
@@ -641,9 +643,20 @@ not factual accuracy. Debater A (Messi), the floor.
   Turns: 40  Cost: $0.0000
 ```
 
-## 10. Budget note
+## 10. Operating cost
 
-`config/setup.json` is set to `pings_per_side: 10` (the full requirement). To reduce API costs, change it to 5 — no grade reduction per the assignment brief.
+A full debate at default settings (`pings_per_side: 10`, six agents enabled, Anthropic web_search) costs **≈ $0.40 – $1.20** of Anthropic spend — typical figure $0.56. The hard cap in `config/rate_limits.json:cost_caps.max_cost_usd_per_debate` is **$10**, well above the typical envelope; the cap exists for runaway-loop protection, not budget squeezing.
+
+| Bucket | Calls | Input tokens | Output tokens | $ contribution |
+| --- | ---: | ---: | ---: | ---: |
+| Judge (Sonnet) | ~12 | ~6 000 | ~3 000 | $0.063 |
+| Debaters ×2 (Sonnet) | 20 | ~24 000 | ~12 000 | $0.252 |
+| Fact-Checker (Sonnet) | 20 | ~6 000 | ~3 000 | $0.063 |
+| Commentator + Crowd (Haiku) | 20 | ~6 000 | ~3 000 | $0.017 |
+| `web_search` calls | ~20 | — | — | $0.200 |
+| **Total / debate** | | | | **≈ $0.59** |
+
+Levers to reduce cost (all config, no code changes): `pings_per_side` 10 → 5 (~50 %), switch a persona to Haiku (~70 % for that persona), disable Fact-Checker (~20 %), or swap the search provider via `rate_limits.json:web_search_provider`. Full breakdown, scaling notes, and the comparison vs the human-judged equivalent live in [`docs/COSTS.md`](docs/COSTS.md). Secrets handling and the gatekeeper trust boundary are documented in [`docs/SECURITY.md`](docs/SECURITY.md).
 
 ## 11. Group
 
