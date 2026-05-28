@@ -52,7 +52,7 @@ Range across observed runs: **$0.40 – $1.20** depending on how verbose the per
 
 ### 1.3 Cost cap enforcement
 
-The gatekeeper (`src/debate_ai/services/gatekeeper.py`) tracks cumulative spend per debate. If `cost_caps.max_cost_usd_per_debate` is breached, the active call is allowed to finish (so we don't leave a half-formed message in the log), then the orchestrator aborts with a clean `CostCapExceeded` exception. Tests in `tests/unit/test_gatekeeper.py` cover the cap path.
+The gatekeeper (`src/debate_ai/shared/gatekeeper.py`) tracks cumulative spend per debate. If `cost_caps.max_cost_usd_per_debate` is breached, the active call is allowed to finish (so we don't leave a half-formed message in the log), then the orchestrator aborts with a clean `CostCapExceeded` exception. Tests in `tests/unit/test_gatekeeper.py` cover the cap path.
 
 ## 2. Cost-reduction levers
 
