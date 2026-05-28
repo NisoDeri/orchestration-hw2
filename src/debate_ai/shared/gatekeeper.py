@@ -26,16 +26,6 @@ from debate_ai.models.config_models import RateLimitsConfig
 from debate_ai.shared.exceptions import CostCapExceededError
 from debate_ai.shared.logger import FifoLogger
 
-# Rough per-1M-token USD costs for the Anthropic models we use.
-# Kept in code (not config) because these are *Anthropic's* prices, not ours
-# to tune. Update when Anthropic changes its pricing card.
-_PRICING_USD_PER_1M: dict[str, tuple[float, float]] = {
-    # (input_per_1m, output_per_1m)
-    "claude-opus-4-7": (15.0, 75.0),
-    "claude-sonnet-4-6": (3.0, 15.0),
-    "claude-haiku-4-5-20251001": (0.80, 4.0),
-}
-
 
 class Gatekeeper:
     """Wrap every outbound Anthropic call with rate limit + retry + cost."""
@@ -69,14 +59,24 @@ class Gatekeeper:
         while attempt <= self.cfg.retry_policy.max_retries:
             self._throttle()
             with self._semaphore:
-                self.logger.log("DEBUG", source=source, kind="anthropic_call_started",
-                                attempt=attempt, model=model)
+                self.logger.log(
+                    "DEBUG",
+                    source=source,
+                    kind="anthropic_call_started",
+                    attempt=attempt,
+                    model=model,
+                )
                 try:
                     response = fn(*args, **kwargs)
                 except Exception as exc:  # noqa: BLE001 — we re-raise after retry exhausted
                     last_exc = exc
-                    self.logger.log("WARN", source=source, kind="anthropic_call_failed",
-                                    attempt=attempt, error=str(exc))
+                    self.logger.log(
+                        "WARN",
+                        source=source,
+                        kind="anthropic_call_failed",
+                        attempt=attempt,
+                        error=str(exc),
+                    )
                     self._backoff(attempt)
                     attempt += 1
                     continue
@@ -134,14 +134,17 @@ class Gatekeeper:
             return
         input_tok = int(getattr(usage, "input_tokens", 0))
         output_tok = int(getattr(usage, "output_tokens", 0))
-        pricing = _PRICING_USD_PER_1M.get(model)
+        pricing = self.cfg.pricing_usd_per_1m_tokens.get(model)
         if pricing is not None:
-            in_price, out_price = pricing
-            added = (input_tok * in_price + output_tok * out_price) / 1_000_000.0
+            added = (input_tok * pricing.input + output_tok * pricing.output) / 1_000_000.0
             with self._lock:
                 self._cost_usd += added
         self.logger.log(
-            "DEBUG", source=source, kind="anthropic_call_finished",
-            model=model, input_tokens=input_tok, output_tokens=output_tok,
+            "DEBUG",
+            source=source,
+            kind="anthropic_call_finished",
+            model=model,
+            input_tokens=input_tok,
+            output_tokens=output_tok,
             cost_so_far_usd=round(self._cost_usd, 4),
         )

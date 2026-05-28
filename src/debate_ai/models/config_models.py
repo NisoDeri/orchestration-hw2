@@ -102,11 +102,18 @@ class _CostCaps(BaseModel):
     search_cost_usd_per_use: float = Field(..., ge=0)
 
 
+class _ModelPricing(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    input: float = Field(..., ge=0)
+    output: float = Field(..., ge=0)
+
+
 class RateLimitsConfig(_Versioned):
     web_search_provider: str = "anthropic_builtin"
     anthropic: _AnthropicLimits
     retry_policy: _RetryPolicy
     cost_caps: _CostCaps
+    pricing_usd_per_1m_tokens: dict[str, _ModelPricing] = Field(default_factory=dict)
 
 
 class LoggingConfig(_Versioned):

@@ -14,17 +14,31 @@ from debate_ai.shared.logger import FifoLogger
 
 
 def _limits(max_cost: float = 10.0, max_retries: int = 2) -> RateLimitsConfig:
-    return RateLimitsConfig.model_validate({
-        "version": "1.00",
-        "web_search_provider": "anthropic_builtin",
-        "anthropic": {"max_requests_per_second": 1000.0, "max_concurrent": 4,
-                      "queue_max_depth": 64, "queue_max_block_s": 5.0},
-        "retry_policy": {"max_retries": max_retries, "backoff_base_s": 0.01,
-                         "backoff_factor": 2.0, "backoff_max_s": 0.05,
-                         "retry_on_status": [500]},
-        "cost_caps": {"max_cost_usd_per_debate": max_cost,
-                      "search_cost_usd_per_use": 0.01},
-    })
+    return RateLimitsConfig.model_validate(
+        {
+            "version": "1.00",
+            "web_search_provider": "anthropic_builtin",
+            "anthropic": {
+                "max_requests_per_second": 1000.0,
+                "max_concurrent": 4,
+                "queue_max_depth": 64,
+                "queue_max_block_s": 5.0,
+            },
+            "retry_policy": {
+                "max_retries": max_retries,
+                "backoff_base_s": 0.01,
+                "backoff_factor": 2.0,
+                "backoff_max_s": 0.05,
+                "retry_on_status": [500],
+            },
+            "cost_caps": {"max_cost_usd_per_debate": max_cost, "search_cost_usd_per_use": 0.01},
+            "pricing_usd_per_1m_tokens": {
+                "claude-opus-4-7": {"input": 15.0, "output": 75.0},
+                "claude-sonnet-4-6": {"input": 3.0, "output": 15.0},
+                "claude-haiku-4-5-20251001": {"input": 0.8, "output": 4.0},
+            },
+        }
+    )
 
 
 def _gk(tmp_path: Path, **kwargs) -> Gatekeeper:

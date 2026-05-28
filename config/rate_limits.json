@@ -23,5 +23,12 @@
   "cost_caps": {
     "max_cost_usd_per_debate": 10.00,
     "search_cost_usd_per_use": 0.01
+  },
+
+  "_pricing_doc": "Anthropic per-1M-token list prices, consumed by the gatekeeper for cost accounting. Update when Anthropic changes its pricing card; the gatekeeper has no fallback for unknown models (cost simply isn't counted).",
+  "pricing_usd_per_1m_tokens": {
+    "claude-opus-4-7":           { "input": 15.00, "output": 75.00 },
+    "claude-sonnet-4-6":         { "input":  3.00, "output": 15.00 },
+    "claude-haiku-4-5-20251001": { "input":  0.80, "output":  4.00 }
   }
 }
