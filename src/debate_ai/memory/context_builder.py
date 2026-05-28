@@ -39,9 +39,7 @@ def _is_visible_to(agent_id: str, entry: TranscriptEntry) -> bool:
 class ContextBuilder:
     """Translate transcript entries into Anthropic ``messages`` lists."""
 
-    def visible_entries(
-        self, agent_id: str, memory: ConversationMemory
-    ) -> list[TranscriptEntry]:
+    def visible_entries(self, agent_id: str, memory: ConversationMemory) -> list[TranscriptEntry]:
         """Filter the transcript according to per-agent visibility rules."""
         snapshot = memory.snapshot()
         entries = [e for e in snapshot if _is_visible_to(agent_id, e)]

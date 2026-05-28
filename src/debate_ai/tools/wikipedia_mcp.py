@@ -53,7 +53,9 @@ class WikipediaMCP:
         if not self.available():
             return None
         request = {
-            "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
             "params": {"name": tool, "arguments": args},
         }
         try:

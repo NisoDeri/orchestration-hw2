@@ -48,11 +48,15 @@ class JudgeAgent(BaseAgent):
         reply = DebaterReply.model_validate(envelope.payload)
         return self.score_turn(reply)
 
-    def relay(self, *, sender: str, recipient: str, kind: EnvelopeKind,
-              payload: dict, round_index: int) -> JudgeEnvelope:
+    def relay(
+        self, *, sender: str, recipient: str, kind: EnvelopeKind, payload: dict, round_index: int
+    ) -> JudgeEnvelope:
         """Wrap a debater payload in a JudgeEnvelope addressed to the opponent."""
         return JudgeEnvelope(
-            round=round_index, kind=kind, sender=sender, recipient=recipient,
+            round=round_index,
+            kind=kind,
+            sender=sender,
+            recipient=recipient,
             payload=payload,
         )
 
@@ -96,12 +100,22 @@ class JudgeAgent(BaseAgent):
 
     def _verdict_prompt(self, sb: ScoreAggregate, *, retry: bool) -> str:
         breakdown = {
-            "debater-a": {"logic": sb.a_logic, "evidence": sb.a_evidence,
-                          "persuasion": sb.a_persuasion, "counter": sb.a_counter},
-            "debater-b": {"logic": sb.b_logic, "evidence": sb.b_evidence,
-                          "persuasion": sb.b_persuasion, "counter": sb.b_counter},
+            "debater-a": {
+                "logic": sb.a_logic,
+                "evidence": sb.a_evidence,
+                "persuasion": sb.a_persuasion,
+                "counter": sb.a_counter,
+            },
+            "debater-b": {
+                "logic": sb.b_logic,
+                "evidence": sb.b_evidence,
+                "persuasion": sb.b_persuasion,
+                "counter": sb.b_counter,
+            },
         }
-        tie_note = " You returned a tie last time — differentiate by AT LEAST 1 point." if retry else ""
+        tie_note = (
+            " You returned a tie last time — differentiate by AT LEAST 1 point." if retry else ""
+        )
         return (
             f"Emit the final Verdict. Use these running aggregates as your starting point "
             f"(you may adjust based on overall rhetorical arc): {breakdown!r}. "
@@ -126,12 +140,21 @@ def fallback_verdict(scoreboard: ScoreAggregate, reasoning: str) -> Verdict:
             score_b += 0.5
     return Verdict(
         winner=winner,  # type: ignore[arg-type]
-        score_a=score_a, score_b=score_b,
+        score_a=score_a,
+        score_b=score_b,
         reasoning=reasoning or "Forced verdict from running aggregate after judge LLM failure.",
         rubric_breakdown={
-            "debater-a": RubricBreakdown(logic=scoreboard.a_logic, evidence=scoreboard.a_evidence,
-                                          persuasion=scoreboard.a_persuasion, counter=scoreboard.a_counter),
-            "debater-b": RubricBreakdown(logic=scoreboard.b_logic, evidence=scoreboard.b_evidence,
-                                          persuasion=scoreboard.b_persuasion, counter=scoreboard.b_counter),
+            "debater-a": RubricBreakdown(
+                logic=scoreboard.a_logic,
+                evidence=scoreboard.a_evidence,
+                persuasion=scoreboard.a_persuasion,
+                counter=scoreboard.a_counter,
+            ),
+            "debater-b": RubricBreakdown(
+                logic=scoreboard.b_logic,
+                evidence=scoreboard.b_evidence,
+                persuasion=scoreboard.b_persuasion,
+                counter=scoreboard.b_counter,
+            ),
         },
     )

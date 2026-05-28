@@ -27,5 +27,6 @@ def test_list_personas_returns_names() -> None:
 def test_run_debate_needs_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     from debate_ai.sdk.sdk import _make_client
+
     with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY"):
         _make_client()

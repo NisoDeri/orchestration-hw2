@@ -15,15 +15,21 @@ from debate_ai.orchestration.round_manager import RoundManager
 
 def _setup(pings: int = 5, era: int | None = 2) -> SetupConfig:
     return SetupConfig(
-        version="1.00", pings_per_side=pings, era_swap_round_index=era,
+        version="1.00",
+        pings_per_side=pings,
+        era_swap_round_index=era,
         agents_enabled={"judge": True, "debater_a": True, "debater_b": True},
         watchdog=WatchdogConfig(
-            timeout_s_per_call=30, max_restarts_per_agent=2,
-            keepalive_interval_s=5, on_unrecoverable="skip",
+            timeout_s_per_call=30,
+            max_restarts_per_agent=2,
+            keepalive_interval_s=5,
+            on_unrecoverable="skip",
         ),
-        judge=JudgeConfig(verdict_no_tie_retries=1, drift_window_turns=2,
-                          agreement_keywords=["agree"]),
-        ui=UIConfig(), replay=ReplayConfig(),
+        judge=JudgeConfig(
+            verdict_no_tie_retries=1, drift_window_turns=2, agreement_keywords=["agree"]
+        ),
+        ui=UIConfig(),
+        replay=ReplayConfig(),
     )
 
 

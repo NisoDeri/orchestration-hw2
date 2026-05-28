@@ -16,11 +16,17 @@ from debate_ai.models.persona_models import Persona
 
 
 def _persona(name: str) -> Persona:
-    return Persona.model_validate({
-        "version": "1.00", "name": name, "display_name": name,
-        "color_hex": "#112233", "system_prompt": "x" * 30,
-        "style_notes": [], "eras": [],
-    })
+    return Persona.model_validate(
+        {
+            "version": "1.00",
+            "name": name,
+            "display_name": name,
+            "color_hex": "#112233",
+            "system_prompt": "x" * 30,
+            "style_notes": [],
+            "eras": [],
+        }
+    )
 
 
 def test_round_kind_required() -> None:
@@ -43,8 +49,9 @@ def test_score_aggregate_add_turn() -> None:
 
 def test_score_aggregate_rejects_unknown_debater() -> None:
     with pytest.raises(ValueError, match="unknown debater"):
-        ScoreAggregate().add_turn("debater-c", TurnScore(logic=1, evidence=1,
-                                                          persuasion=1, counter=1))
+        ScoreAggregate().add_turn(
+            "debater-c", TurnScore(logic=1, evidence=1, persuasion=1, counter=1)
+        )
 
 
 def test_winner_from_aggregate_total_decides() -> None:
@@ -91,15 +98,24 @@ def test_confidence_a_in_unit_range() -> None:
 
 
 def test_debate_state_round_trip() -> None:
-    cfg = DebateConfig.model_validate({
-        "motion": "Are dogs better than cats for a first pet?",
-        "persona_a": _persona("dog").model_dump(),
-        "persona_b": _persona("cat").model_dump(),
-        "pings_per_side": 10, "era_swap_round_index": 4,
-        "era_swap_strategy": "contrasting",
-        "agents_enabled": {"judge": True, "debater_a": True, "debater_b": True,
-                           "commentator": False, "crowd": False, "fact_checker": False},
-    })
+    cfg = DebateConfig.model_validate(
+        {
+            "motion": "Are dogs better than cats for a first pet?",
+            "persona_a": _persona("dog").model_dump(),
+            "persona_b": _persona("cat").model_dump(),
+            "pings_per_side": 10,
+            "era_swap_round_index": 4,
+            "era_swap_strategy": "contrasting",
+            "agents_enabled": {
+                "judge": True,
+                "debater_a": True,
+                "debater_b": True,
+                "commentator": False,
+                "crowd": False,
+                "fact_checker": False,
+            },
+        }
+    )
     state = DebateState(cfg=cfg)
     assert state.current_round == 0
     assert state.verdict is None

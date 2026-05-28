@@ -1,4 +1,5 @@
 """Pre-scripted support agent responses for the complete demo simulation."""
+
 from __future__ import annotations
 
 JUDGE_PROMPTS: list[str] = [
@@ -56,7 +57,11 @@ CROWD_REACTIONS: list[tuple[list[str], str, float]] = [
     (["⚠️", "🤥", "😱"], "DID RONALDO JUST LIE ABOUT HIS UCL STATS?!", -0.5),
     (["🔍", "💣", "🎯"], "MESSI CAUGHT THE LIE! But wait — is his own UCL claim accurate?!", 0.2),
     (["🧊", "💎", "!"], "Ice in the veins — Ronaldo's penalty-pressure argument hits hard.", -0.2),
-    (["🏆", "🏆", "🏆", "🏆", "🏆", "🏆"], "THE SEXTUPLE! 2009 Barcelona was on another planet!", 0.6),
+    (
+        ["🏆", "🏆", "🏆", "🏆", "🏆", "🏆"],
+        "THE SEXTUPLE! 2009 Barcelona was on another planet!",
+        0.6,
+    ),
     (["💪", "🔥", "!!"], "69 goals in a year for 2013 Ronaldo — absurd numbers!", -0.3),
     (["🏆", "🌍", "⭐", "🇦🇷", "🐐"], "WORLD CUP 2022! That's the nuclear option!", 0.7),
     (["🇵🇹", "❤️", "😢"], "Euro 2016 leadership from the touchline — goosebumps moment.", -0.1),
@@ -72,46 +77,140 @@ CROWD_REACTIONS: list[tuple[list[str], str, float]] = [
 ]
 
 FACT_CHECKS: list[list[dict]] = [
-    [{"claim": "8 Ballon d'Or awards", "verdict": "correct",
-      "note": "Verified: FIFA/France Football records confirm 8 (2009-2023)"}],
-    [{"claim": "135 international goals", "verdict": "correct",
-      "note": "Verified: FIFA records as of 2024"}],
-    [{"claim": "192 La Liga assists", "verdict": "correct",
-      "note": "Transfermarkt confirms 192 assists in La Liga"}],
-    [{"claim": "titles in 3 different top leagues", "verdict": "correct",
-      "note": "EPL, La Liga, Serie A — verified"}],
-    [{"claim": "72 UCL knockout goals", "verdict": "incorrect",
-      "note": "ACTUAL: 67 knockout goals per UEFA records. Ronaldo inflated by 5 goals"},
-     {"claim": "Messi scored in only 2 of last 8 knockout ties", "verdict": "misleading",
-      "note": "Messi scored in 4 of his last 8 knockout ties — exaggerated claim"}],
-    [{"claim": "Messi caught Ronaldo's 72 lie", "verdict": "correct",
-      "note": "Ronaldo's actual UCL knockout tally is 67, not 72"},
-     {"claim": "135 total UCL goals surpassing Ronaldo", "verdict": "incorrect",
-      "note": "Messi has 129 UCL goals, not 135. Ronaldo has 140+. Both claims wrong"}],
-    [{"claim": "5 Champions League titles", "verdict": "correct",
-      "note": "1 Man Utd (2008), 4 Real Madrid (2014-18)"}],
-    [{"claim": "first-ever sextuple", "verdict": "correct",
-      "note": "Barcelona 2008-09 won all 6 competitions"}],
-    [{"claim": "69 goals in 2013", "verdict": "correct",
-      "note": "Ronaldo scored 69 goals in calendar year 2013"}],
-    [{"claim": "7 goals, 3 assists in 2022 WC", "verdict": "correct",
-      "note": "FIFA official tournament stats confirm"}],
-    [{"claim": "injured in Euro 2016 final", "verdict": "correct",
-      "note": "Ronaldo went off at minute 25 with knee injury"}],
-    [{"claim": "4,200 successful dribbles with 73% rate", "verdict": "incorrect",
-      "note": "ACTUAL: ~2,000 successful dribbles, 68% rate. Messi inflated both figures"}],
-    [{"claim": "winger to striker to target man", "verdict": "correct",
-      "note": "Three distinct tactical phases documented"}],
-    [{"claim": "zero trophies in first two seasons outside Barcelona", "verdict": "incorrect",
-      "note": "FALSE: Messi won Ligue 1 with PSG (2021-22). Ronaldo fabricated this claim"}],
-    [{"claim": "Messi won Ligue 1 with PSG", "verdict": "correct",
-      "note": "Confirmed: PSG won Ligue 1 in 2021-22 with Messi in the squad"},
-     {"claim": "36 club trophies", "verdict": "correct",
-      "note": "Verified across Barcelona, PSG, Inter Miami"}],
-    [{"claim": "xA and progressive passes favour Messi", "verdict": "correct",
-      "note": "FBref data confirms across all seasons"}],
-    [{"claim": "900+ career goals", "verdict": "correct",
-      "note": "Ronaldo reached 900 in 2024; exact count varies by source"}],
+    [
+        {
+            "claim": "8 Ballon d'Or awards",
+            "verdict": "correct",
+            "note": "Verified: FIFA/France Football records confirm 8 (2009-2023)",
+        }
+    ],
+    [
+        {
+            "claim": "135 international goals",
+            "verdict": "correct",
+            "note": "Verified: FIFA records as of 2024",
+        }
+    ],
+    [
+        {
+            "claim": "192 La Liga assists",
+            "verdict": "correct",
+            "note": "Transfermarkt confirms 192 assists in La Liga",
+        }
+    ],
+    [
+        {
+            "claim": "titles in 3 different top leagues",
+            "verdict": "correct",
+            "note": "EPL, La Liga, Serie A — verified",
+        }
+    ],
+    [
+        {
+            "claim": "72 UCL knockout goals",
+            "verdict": "incorrect",
+            "note": "ACTUAL: 67 knockout goals per UEFA records. Ronaldo inflated by 5 goals",
+        },
+        {
+            "claim": "Messi scored in only 2 of last 8 knockout ties",
+            "verdict": "misleading",
+            "note": "Messi scored in 4 of his last 8 knockout ties — exaggerated claim",
+        },
+    ],
+    [
+        {
+            "claim": "Messi caught Ronaldo's 72 lie",
+            "verdict": "correct",
+            "note": "Ronaldo's actual UCL knockout tally is 67, not 72",
+        },
+        {
+            "claim": "135 total UCL goals surpassing Ronaldo",
+            "verdict": "incorrect",
+            "note": "Messi has 129 UCL goals, not 135. Ronaldo has 140+. Both claims wrong",
+        },
+    ],
+    [
+        {
+            "claim": "5 Champions League titles",
+            "verdict": "correct",
+            "note": "1 Man Utd (2008), 4 Real Madrid (2014-18)",
+        }
+    ],
+    [
+        {
+            "claim": "first-ever sextuple",
+            "verdict": "correct",
+            "note": "Barcelona 2008-09 won all 6 competitions",
+        }
+    ],
+    [
+        {
+            "claim": "69 goals in 2013",
+            "verdict": "correct",
+            "note": "Ronaldo scored 69 goals in calendar year 2013",
+        }
+    ],
+    [
+        {
+            "claim": "7 goals, 3 assists in 2022 WC",
+            "verdict": "correct",
+            "note": "FIFA official tournament stats confirm",
+        }
+    ],
+    [
+        {
+            "claim": "injured in Euro 2016 final",
+            "verdict": "correct",
+            "note": "Ronaldo went off at minute 25 with knee injury",
+        }
+    ],
+    [
+        {
+            "claim": "4,200 successful dribbles with 73% rate",
+            "verdict": "incorrect",
+            "note": "ACTUAL: ~2,000 successful dribbles, 68% rate. Messi inflated both figures",
+        }
+    ],
+    [
+        {
+            "claim": "winger to striker to target man",
+            "verdict": "correct",
+            "note": "Three distinct tactical phases documented",
+        }
+    ],
+    [
+        {
+            "claim": "zero trophies in first two seasons outside Barcelona",
+            "verdict": "incorrect",
+            "note": "FALSE: Messi won Ligue 1 with PSG (2021-22). Ronaldo fabricated this claim",
+        }
+    ],
+    [
+        {
+            "claim": "Messi won Ligue 1 with PSG",
+            "verdict": "correct",
+            "note": "Confirmed: PSG won Ligue 1 in 2021-22 with Messi in the squad",
+        },
+        {
+            "claim": "36 club trophies",
+            "verdict": "correct",
+            "note": "Verified across Barcelona, PSG, Inter Miami",
+        },
+    ],
+    [
+        {
+            "claim": "xA and progressive passes favour Messi",
+            "verdict": "correct",
+            "note": "FBref data confirms across all seasons",
+        }
+    ],
+    [
+        {
+            "claim": "900+ career goals",
+            "verdict": "correct",
+            "note": "Ronaldo reached 900 in 2024; exact count varies by source",
+        }
+    ],
     [],
     [],
     [],

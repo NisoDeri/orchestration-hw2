@@ -35,26 +35,35 @@ from debate_ai.shared.logger import FifoLogger
 
 
 def _persona(name: str) -> Persona:
-    return Persona.model_validate({
-        "version": "1.00", "name": name, "display_name": f"{name} GOAT",
-        "color_hex": "#123456",
-        "system_prompt": f"You argue passionately for {name} being the best.",
-        "style_notes": ["bold"],
-        "eras": [{"label": "2009", "system_addendum": "era overlay"}],
-    })
+    return Persona.model_validate(
+        {
+            "version": "1.00",
+            "name": name,
+            "display_name": f"{name} GOAT",
+            "color_hex": "#123456",
+            "system_prompt": f"You argue passionately for {name} being the best.",
+            "style_notes": ["bold"],
+            "eras": [{"label": "2009", "system_addendum": "era overlay"}],
+        }
+    )
 
 
 def _setup(pings: int = 2) -> SetupConfig:
     return SetupConfig(
-        version="1.00", pings_per_side=pings,
+        version="1.00",
+        pings_per_side=pings,
         agents_enabled={r.value: True for r in AgentRole},
         watchdog=WatchdogConfig(
-            timeout_s_per_call=5, max_restarts_per_agent=1,
-            keepalive_interval_s=5, on_unrecoverable="skip",
+            timeout_s_per_call=5,
+            max_restarts_per_agent=1,
+            keepalive_interval_s=5,
+            on_unrecoverable="skip",
         ),
-        judge=JudgeConfig(verdict_no_tie_retries=1, drift_window_turns=2,
-                          agreement_keywords=["agree"]),
-        ui=UIConfig(), replay=ReplayConfig(),
+        judge=JudgeConfig(
+            verdict_no_tie_retries=1, drift_window_turns=2, agreement_keywords=["agree"]
+        ),
+        ui=UIConfig(),
+        replay=ReplayConfig(),
     )
 
 
@@ -72,7 +81,9 @@ def test_support_event_kind() -> None:
 
 def _verdict() -> Verdict:
     return Verdict(
-        winner="debater-a", score_a=80, score_b=70,
+        winner="debater-a",
+        score_a=80,
+        score_b=70,
         reasoning="x" * 35,
         rubric_breakdown={
             "debater-a": RubricBreakdown(logic=20, evidence=20, persuasion=20, counter=20),
@@ -84,8 +95,11 @@ def _verdict() -> Verdict:
 def _mock_judge() -> MagicMock:
     judge = MagicMock(spec=JudgeAgent)
     judge.relay.return_value = JudgeEnvelope(
-        round=0, kind=EnvelopeKind.OPENING,
-        sender="judge", recipient="debater-a", payload={"prompt": "go"},
+        round=0,
+        kind=EnvelopeKind.OPENING,
+        sender="judge",
+        recipient="debater-a",
+        payload={"prompt": "go"},
     )
     judge.score_turn.return_value = TurnScore(logic=8, evidence=7, persuasion=9, counter=6)
     judge.verdict.return_value = _verdict()
@@ -95,8 +109,10 @@ def _mock_judge() -> MagicMock:
 def _make_manager(pings: int = 1) -> DebateManager:
     setup = _setup(pings)
     dcfg = DebateConfig(
-        motion="Who is the GOAT?", persona_a=_persona("Messi"),
-        persona_b=_persona("Ronaldo"), pings_per_side=pings,
+        motion="Who is the GOAT?",
+        persona_a=_persona("Messi"),
+        persona_b=_persona("Ronaldo"),
+        pings_per_side=pings,
         agents_enabled={r.value: False for r in AgentRole},
     )
     state = DebateState(cfg=dcfg)
@@ -123,8 +139,14 @@ def _make_manager(pings: int = 1) -> DebateManager:
         AgentRole.DEBATER_B.value: debater_b,
     }
     return DebateManager(
-        agents=agents, state=state, memory=memory, rounds=rounds,
-        watchdog=watchdog, emitter=emitter, scoring=scoring, logger=logger,
+        agents=agents,
+        state=state,
+        memory=memory,
+        rounds=rounds,
+        watchdog=watchdog,
+        emitter=emitter,
+        scoring=scoring,
+        logger=logger,
     )
 
 

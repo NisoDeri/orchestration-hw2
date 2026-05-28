@@ -13,11 +13,13 @@ from debate_ai.shared.exceptions import RouteError
 _JUDGE = AgentRole.JUDGE.value
 _DA = AgentRole.DEBATER_A.value
 _DB = AgentRole.DEBATER_B.value
-_SUPPORT = frozenset({
-    AgentRole.COMMENTATOR.value,
-    AgentRole.CROWD.value,
-    AgentRole.FACT_CHECKER.value,
-})
+_SUPPORT = frozenset(
+    {
+        AgentRole.COMMENTATOR.value,
+        AgentRole.CROWD.value,
+        AgentRole.FACT_CHECKER.value,
+    }
+)
 
 
 def validate_route(sender: str, recipient: str) -> None:
@@ -38,7 +40,10 @@ def opponent_of(debater: str) -> str:
 
 
 def next_recipient(
-    sender: str, kind: EnvelopeKind, round_index: int, pings_per_side: int,
+    sender: str,
+    kind: EnvelopeKind,
+    round_index: int,
+    pings_per_side: int,
 ) -> str:
     """Determine who the Judge should relay the message to next."""
     if sender == _DA:
@@ -53,7 +58,8 @@ def next_recipient(
 
 
 def is_round_complete(
-    a_pings_this_round: int, b_pings_this_round: int,
+    a_pings_this_round: int,
+    b_pings_this_round: int,
 ) -> bool:
     """True when both debaters have spoken at least once this round."""
     return a_pings_this_round >= 1 and b_pings_this_round >= 1

@@ -13,15 +13,26 @@ from debate_ai.tools.web_search_tool import (
 
 
 def _rl(provider: str = "anthropic_builtin") -> RateLimitsConfig:
-    return RateLimitsConfig.model_validate({
-        "version": "1.00", "web_search_provider": provider,
-        "anthropic": {"max_requests_per_second": 10.0, "max_concurrent": 4,
-                      "queue_max_depth": 64, "queue_max_block_s": 5.0},
-        "retry_policy": {"max_retries": 1, "backoff_base_s": 0.01,
-                         "backoff_factor": 2.0, "backoff_max_s": 0.1,
-                         "retry_on_status": [500]},
-        "cost_caps": {"max_cost_usd_per_debate": 10.0, "search_cost_usd_per_use": 0.01},
-    })
+    return RateLimitsConfig.model_validate(
+        {
+            "version": "1.00",
+            "web_search_provider": provider,
+            "anthropic": {
+                "max_requests_per_second": 10.0,
+                "max_concurrent": 4,
+                "queue_max_depth": 64,
+                "queue_max_block_s": 5.0,
+            },
+            "retry_policy": {
+                "max_retries": 1,
+                "backoff_base_s": 0.01,
+                "backoff_factor": 2.0,
+                "backoff_max_s": 0.1,
+                "retry_on_status": [500],
+            },
+            "cost_caps": {"max_cost_usd_per_debate": 10.0, "search_cost_usd_per_use": 0.01},
+        }
+    )
 
 
 def test_builtin_tool_spec_shape() -> None:
@@ -63,10 +74,13 @@ def test_build_tools_color_crew_gets_nothing() -> None:
 def test_parse_citations_extracts_url_title_snippet() -> None:
     fake_response_content = [
         {"type": "text", "text": "thinking..."},
-        {"type": "web_search_tool_result", "content": [
-            {"url": "https://example.com/a", "title": "A", "snippet": "ay"},
-            {"url": "https://example.com/b", "title": "B", "snippet": "bee"},
-        ]},
+        {
+            "type": "web_search_tool_result",
+            "content": [
+                {"url": "https://example.com/a", "title": "A", "snippet": "ay"},
+                {"url": "https://example.com/b", "title": "B", "snippet": "bee"},
+            ],
+        },
     ]
     cites = parse_citations(fake_response_content)
     assert len(cites) == 2

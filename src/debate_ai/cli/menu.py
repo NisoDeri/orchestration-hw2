@@ -1,4 +1,5 @@
 """Interactive terminal menu for the debate CLI."""
+
 from __future__ import annotations
 
 from rich.console import Console
@@ -44,6 +45,7 @@ def _dispatch(choice: str) -> None:
 
 def _run_debate() -> None:
     from debate_ai.sdk.sdk import run_debate
+
     console.print("[bold]Running debate…[/bold]")
     try:
         result = run_debate()
@@ -57,6 +59,7 @@ def _run_debate() -> None:
 
 def _run_demo() -> None:
     from debate_ai.sdk.sdk import run_demo
+
     console.print("[bold]Running demo debate (pre-scripted)…[/bold]\n")
     try:
         result = run_demo()
@@ -67,6 +70,7 @@ def _run_demo() -> None:
 
 def _show_config() -> None:
     from debate_ai.sdk.sdk import get_config
+
     cfg = get_config()
     console.print(f"Motion: {cfg['motion']}")
     console.print(f"Pings per side: {cfg['pings_per_side']}")
@@ -75,10 +79,12 @@ def _show_config() -> None:
 
 def _list_personas() -> None:
     from debate_ai.sdk.sdk import list_personas
+
     for name in list_personas():
         console.print(f"  • {name}")
 
 
 def _launch_ui() -> None:
     from debate_ai.ui.server import launch
+
     launch()

@@ -1,4 +1,5 @@
 """FastAPI server with SSE for the live debate chat UI."""
+
 from __future__ import annotations
 
 import asyncio
@@ -44,6 +45,7 @@ async def events() -> EventSourceResponse:
                 yield {"data": json.dumps(data, default=str)}
             if not batch:
                 await asyncio.sleep(0.05)
+
     return EventSourceResponse(_stream())
 
 
@@ -74,11 +76,13 @@ async def start_live() -> dict:
 
 def _run_demo_bg(cfg_dir: Path, emitter: EventEmitter) -> None:
     from debate_ai.services.demo_service import run_demo_with_emitter
+
     run_demo_with_emitter(cfg_dir, emitter)
 
 
 def _run_live_bg(emitter: EventEmitter) -> None:
     from debate_ai.sdk.sdk import run_debate
+
     try:
         run_debate(emitter=emitter)
     except Exception as exc:  # noqa: BLE001

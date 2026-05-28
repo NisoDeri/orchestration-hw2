@@ -25,9 +25,12 @@ def _ctx(client: MagicMock, role: str = "commentator"):
     gk = MagicMock(spec=Gatekeeper)
     gk.call = MagicMock(side_effect=_gk_call)
     from debate_ai.agents.base_agent import AgentContext
+
     return AgentContext(
-        role=role, config=_agent_model_cfg(),
-        default_betas=["skills-2025-10-02"], gatekeeper=gk,
+        role=role,
+        config=_agent_model_cfg(),
+        default_betas=["skills-2025-10-02"],
+        gatekeeper=gk,
         memory=ConversationMemory("test-debate", "Messi vs Ronaldo"),
         context_builder=ContextBuilder(),
         anthropic_client=client,
@@ -36,8 +39,10 @@ def _ctx(client: MagicMock, role: str = "commentator"):
 
 def _envelope() -> JudgeEnvelope:
     return JudgeEnvelope(
-        round=2, kind=EnvelopeKind.REBUTTAL,
-        sender="debater-a", recipient="commentator",
+        round=2,
+        kind=EnvelopeKind.REBUTTAL,
+        sender="debater-a",
+        recipient="commentator",
         payload={"argument": "Messi's dribbling is art."},
     )
 
@@ -77,8 +82,10 @@ def test_commentator_rejects_bad_schema(mock_anthropic_client: MagicMock) -> Non
 
 def test_crowd_respond_valid(mock_anthropic_client: MagicMock) -> None:
     payload = {
-        "envelope_ref": "e1", "emojis": ["⚽", "🔥"],
-        "one_liner": "Messi magic!", "lean": -0.5,
+        "envelope_ref": "e1",
+        "emojis": ["⚽", "🔥"],
+        "one_liner": "Messi magic!",
+        "lean": -0.5,
     }
     response = MagicMock()
     response.content = [MagicMock(type="tool_use", input=payload)]

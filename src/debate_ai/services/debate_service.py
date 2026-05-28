@@ -57,21 +57,28 @@ class DebateService:
         self.client = anthropic_client
 
     def run_debate(
-        self, emitter: EventEmitter | None = None,
+        self,
+        emitter: EventEmitter | None = None,
     ) -> DebateResult:
         """Assemble all components and run the debate to completion."""
         memory = ConversationMemory(debate_id="d1", motion=self.motion)
         ctx_builder = ContextBuilder()
         agents = create_agents(
-            setup=self.setup, models=self.models_cfg,
-            persona_a=self.persona_a, persona_b=self.persona_b,
-            facts_service=self.facts, gatekeeper=self.gatekeeper,
-            memory=memory, context_builder=ctx_builder,
+            setup=self.setup,
+            models=self.models_cfg,
+            persona_a=self.persona_a,
+            persona_b=self.persona_b,
+            facts_service=self.facts,
+            gatekeeper=self.gatekeeper,
+            memory=memory,
+            context_builder=ctx_builder,
             anthropic_client=self.client,
         )
         dcfg = DebateConfig(
-            motion=self.motion, persona_a=self.persona_a,
-            persona_b=self.persona_b, pings_per_side=self.setup.pings_per_side,
+            motion=self.motion,
+            persona_a=self.persona_a,
+            persona_b=self.persona_b,
+            pings_per_side=self.setup.pings_per_side,
             era_swap_round_index=self.setup.era_swap_round_index,
             agents_enabled=self.setup.agents_enabled,
         )
@@ -84,9 +91,14 @@ class DebateService:
             self.setup.judge.drift_window_turns,
         )
         mgr = DebateManager(
-            agents=agents, state=state, memory=memory,
-            rounds=rounds, watchdog=watchdog, emitter=ev,
-            scoring=scoring, logger=self.logger,
+            agents=agents,
+            state=state,
+            memory=memory,
+            rounds=rounds,
+            watchdog=watchdog,
+            emitter=ev,
+            scoring=scoring,
+            logger=self.logger,
         )
         final = mgr.run()
         watchdog.shutdown()
@@ -94,10 +106,13 @@ class DebateService:
 
 
 def _to_result(
-    state: DebateState, memory: ConversationMemory, cost_usd: float,
+    state: DebateState,
+    memory: ConversationMemory,
+    cost_usd: float,
 ) -> DebateResult:
     return DebateResult(
-        debate_id=state.debate_id, motion=state.cfg.motion,
+        debate_id=state.debate_id,
+        motion=state.cfg.motion,
         persona_a_name=state.cfg.persona_a.name,
         persona_b_name=state.cfg.persona_b.name,
         verdict=state.verdict,

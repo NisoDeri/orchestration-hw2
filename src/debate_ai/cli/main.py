@@ -1,4 +1,5 @@
 """CLI entry point — thin Typer shell over the SDK."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -16,6 +17,7 @@ def _menu(ctx: typer.Context) -> None:
     if ctx.invoked_subcommand is not None:
         return
     from debate_ai.cli.menu import interactive_menu
+
     interactive_menu()
 
 
@@ -25,6 +27,7 @@ def run(
 ) -> None:
     """Run a single debate and print the result."""
     from debate_ai.sdk.sdk import run_debate
+
     console.print("[bold]Starting Messi vs Ronaldo debate…[/bold]")
     _print_result(run_debate(config_dir=config_dir))
 
@@ -33,6 +36,7 @@ def run(
 def demo() -> None:
     """Run a demo debate with pre-scripted agents (no API key needed)."""
     from debate_ai.sdk.sdk import run_demo
+
     console.print("[bold]Running demo debate (pre-scripted, no API key)…[/bold]\n")
     _print_result(run_demo())
 
@@ -44,6 +48,7 @@ def start(
 ) -> None:
     """Launch the HTML chat UI (FastAPI + SSE)."""
     from debate_ai.ui.server import launch
+
     launch(host=host, port=port)
 
 
@@ -51,6 +56,7 @@ def start(
 def config() -> None:
     """Show current config summary."""
     from debate_ai.sdk.sdk import get_config
+
     cfg = get_config()
     console.print(f"Motion: {cfg['motion']}")
     console.print(f"Pings per side: {cfg['pings_per_side']}")

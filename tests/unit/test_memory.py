@@ -10,10 +10,18 @@ from debate_ai.memory.conversation_memory import ConversationMemory, summarize
 from debate_ai.models.message_models import JudgeEnvelope
 
 
-def _env(sender: str, recipient: str, kind: EnvelopeKind = EnvelopeKind.REBUTTAL,
-         round_index: int = 1, payload: dict | None = None) -> JudgeEnvelope:
+def _env(
+    sender: str,
+    recipient: str,
+    kind: EnvelopeKind = EnvelopeKind.REBUTTAL,
+    round_index: int = 1,
+    payload: dict | None = None,
+) -> JudgeEnvelope:
     return JudgeEnvelope(
-        round=round_index, kind=kind, sender=sender, recipient=recipient,
+        round=round_index,
+        kind=kind,
+        sender=sender,
+        recipient=recipient,
         payload=payload or {"argument": f"{sender}->{recipient}"},
     )
 
@@ -65,8 +73,8 @@ def test_visibility_judge_sees_everything() -> None:
 
 def test_visibility_debater_a_only_sees_own_addressed() -> None:
     mem = ConversationMemory("d1", "motion")
-    mem.append(_env("debater-a", "debater-b"))   # NOT visible to A
-    mem.append(_env("debater-b", "debater-a"))   # visible to A
+    mem.append(_env("debater-a", "debater-b"))  # NOT visible to A
+    mem.append(_env("debater-b", "debater-a"))  # visible to A
     mem.append(_env("judge", "all", kind=EnvelopeKind.RULING))  # visible (broadcast)
     cb = ContextBuilder()
     visible = cb.visible_entries("debater-a", mem)

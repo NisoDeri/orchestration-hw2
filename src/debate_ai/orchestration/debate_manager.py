@@ -1,4 +1,5 @@
 """DebateManager — the core orchestration loop."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -24,10 +25,17 @@ _SUPPORT = (AgentRole.COMMENTATOR.value, AgentRole.CROWD.value, AgentRole.FACT_C
 
 
 class DebateManager:
-    def __init__(self, agents: dict[str, Any], state: DebateState,
-                 memory: ConversationMemory, rounds: RoundManager,
-                 watchdog: Watchdog, emitter: EventEmitter,
-                 scoring: ScoringService, logger: FifoLogger) -> None:
+    def __init__(
+        self,
+        agents: dict[str, Any],
+        state: DebateState,
+        memory: ConversationMemory,
+        rounds: RoundManager,
+        watchdog: Watchdog,
+        emitter: EventEmitter,
+        scoring: ScoringService,
+        logger: FifoLogger,
+    ) -> None:
         self.agents, self.state, self.memory = agents, state, memory
         self.rounds, self.watchdog, self.emitter = rounds, watchdog, emitter
         self.scoring, self.logger = scoring, logger
@@ -48,9 +56,13 @@ class DebateManager:
     def _run_rounds(self) -> None:
         while not self.rounds.is_debate_over():
             kind = self.rounds.current_kind()
-            self.emitter.emit("round_changed", {
-                "round": self.rounds.current_round, "kind": kind.value,
-            })
+            self.emitter.emit(
+                "round_changed",
+                {
+                    "round": self.rounds.current_round,
+                    "kind": kind.value,
+                },
+            )
             self._run_one_round(kind)
             self.rounds.advance()
 
@@ -62,8 +74,11 @@ class DebateManager:
 
     def _debater_turn(self, role: str, kind: EnvelopeKind, rnd: int) -> None:
         envelope = self.judge.relay(
-            sender=_opponent(role), recipient=role,
-            kind=kind, payload=self._last_payload(role), round_index=rnd,
+            sender=_opponent(role),
+            recipient=role,
+            kind=kind,
+            payload=self._last_payload(role),
+            round_index=rnd,
         )
         self.memory.append(envelope)
         self.emitter.emit("agent_started_typing", {"agent": role})
@@ -73,12 +88,17 @@ class DebateManager:
             self.logger.log("ERROR", source="debate_manager", kind="agent_failed", agent=role)
             return
         reply_env = self.judge.relay(
-            sender=role, recipient=_opponent(role),
-            kind=kind, payload=reply.model_dump(), round_index=rnd,
+            sender=role,
+            recipient=_opponent(role),
+            kind=kind,
+            payload=reply.model_dump(),
+            round_index=rnd,
         )
         self.memory.append(reply_env)
         self.state.history.append(reply_env)
-        self.emitter.emit("agent_message", {"agent": role, "round": rnd, "argument": reply.argument})
+        self.emitter.emit(
+            "agent_message", {"agent": role, "round": rnd, "argument": reply.argument}
+        )
         self._score_turn(role, reply)
         self._run_support_agents(reply_env)
 
@@ -103,9 +123,13 @@ class DebateManager:
 
     def _issue_verdict(self) -> None:
         try:
-            verdict = self.watchdog.call_with_timeout("judge", self.judge.verdict, self.state.scoreboard)
+            verdict = self.watchdog.call_with_timeout(
+                "judge", self.judge.verdict, self.state.scoreboard
+            )
         except (WatchdogTimeoutError, VerdictTieError, AgentUnrecoverableError):
-            verdict = fallback_verdict(self.state.scoreboard, "Deterministic fallback after judge failure.")
+            verdict = fallback_verdict(
+                self.state.scoreboard, "Deterministic fallback after judge failure."
+            )
         self.state.verdict = verdict
         self.emitter.emit("verdict", verdict.model_dump())
 
@@ -117,7 +141,11 @@ class DebateManager:
 
 
 def _opponent(role: str) -> str:
-    return AgentRole.DEBATER_B.value if role == AgentRole.DEBATER_A.value else AgentRole.DEBATER_A.value
+    return (
+        AgentRole.DEBATER_B.value
+        if role == AgentRole.DEBATER_A.value
+        else AgentRole.DEBATER_A.value
+    )
 
 
 def _support_event_kind(role: str) -> str:

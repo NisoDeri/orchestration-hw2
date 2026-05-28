@@ -52,11 +52,15 @@ def run_debate(
     facts_service = FactsService(facts_cfg, wikipedia=wiki)
     client = anthropic_client or _make_client()
     svc = DebateService(
-        setup=setup, models_cfg=models,
-        persona_a=persona_a, persona_b=persona_b,
+        setup=setup,
+        models_cfg=models,
+        persona_a=persona_a,
+        persona_b=persona_b,
         motion=debate_json.motion,
-        gatekeeper=gatekeeper, logger=logger,
-        facts_service=facts_service, anthropic_client=client,
+        gatekeeper=gatekeeper,
+        logger=logger,
+        facts_service=facts_service,
+        anthropic_client=client,
     )
     return svc.run_debate(emitter=emitter)
 
@@ -83,6 +87,7 @@ def get_config(config_dir: Path | None = None) -> dict[str, Any]:
 def run_demo(config_dir: Path | None = None) -> DebateResult:
     """Run a demo debate with pre-scripted agents (no API key needed)."""
     from debate_ai.services.demo_service import run_demo as _run
+
     return _run(config_dir or _CONFIG_DIR)
 
 

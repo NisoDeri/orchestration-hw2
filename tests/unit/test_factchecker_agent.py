@@ -26,9 +26,12 @@ def _ctx(client: MagicMock):
     gk = MagicMock(spec=Gatekeeper)
     gk.call = MagicMock(side_effect=_gk_call)
     from debate_ai.agents.base_agent import AgentContext
+
     return AgentContext(
-        role="fact-checker", config=_agent_model_cfg(),
-        default_betas=["skills-2025-10-02"], gatekeeper=gk,
+        role="fact-checker",
+        config=_agent_model_cfg(),
+        default_betas=["skills-2025-10-02"],
+        gatekeeper=gk,
         memory=ConversationMemory("test-debate", "Messi vs Ronaldo"),
         context_builder=ContextBuilder(),
         anthropic_client=client,
@@ -42,8 +45,10 @@ def _facts_service() -> FactsService:
 
 def _envelope() -> JudgeEnvelope:
     return JudgeEnvelope(
-        round=1, kind=EnvelopeKind.REBUTTAL,
-        sender="debater-a", recipient="fact-checker",
+        round=1,
+        kind=EnvelopeKind.REBUTTAL,
+        sender="debater-a",
+        recipient="fact-checker",
         payload={"argument": "Messi won 8 Ballon d'Ors."},
     )
 
@@ -51,10 +56,15 @@ def _envelope() -> JudgeEnvelope:
 def test_respond_valid(mock_anthropic_client: MagicMock) -> None:
     payload = {
         "envelope_ref": "e1",
-        "claims": [{
-            "quote": "8 Ballon d'Ors", "verdict": "correct", "severity": 0.0,
-            "source_kind": "facts_json", "source_ref": "ballon_dor_count_messi",
-        }],
+        "claims": [
+            {
+                "quote": "8 Ballon d'Ors",
+                "verdict": "correct",
+                "severity": 0.0,
+                "source_kind": "facts_json",
+                "source_ref": "ballon_dor_count_messi",
+            }
+        ],
     }
     response = MagicMock()
     response.content = [MagicMock(type="tool_use", input=payload)]
@@ -95,7 +105,10 @@ def test_extract_argument_text() -> None:
 
 def test_extract_argument_text_missing() -> None:
     env = JudgeEnvelope(
-        round=1, kind=EnvelopeKind.REBUTTAL,
-        sender="debater-a", recipient="fact-checker", payload={},
+        round=1,
+        kind=EnvelopeKind.REBUTTAL,
+        sender="debater-a",
+        recipient="fact-checker",
+        payload={},
     )
     assert _extract_argument_text(env) == ""

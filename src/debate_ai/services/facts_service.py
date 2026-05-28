@@ -39,9 +39,13 @@ class FactsService:
         for rx, claim_id in self._compiled:
             for m in rx.finditer(text):
                 captured = m.group(1) if m.groups() else m.group(0)
-                found.append(CheckableClaim(
-                    quote=m.group(0), claim_id=claim_id, captured_value=captured,
-                ))
+                found.append(
+                    CheckableClaim(
+                        quote=m.group(0),
+                        claim_id=claim_id,
+                        captured_value=captured,
+                    )
+                )
         return found
 
     def verify(self, claim: CheckableClaim) -> FactClaimAnnotation:
@@ -74,14 +78,20 @@ class FactsService:
         actual_int = int(record.value)
         if captured_int == actual_int:
             return FactClaimAnnotation(
-                quote=claim.quote, verdict="correct", severity=0.0,
-                actual=None, source_kind="facts_json", source_ref=record.source,
+                quote=claim.quote,
+                verdict="correct",
+                severity=0.0,
+                actual=None,
+                source_kind="facts_json",
+                source_ref=record.source,
             )
         return FactClaimAnnotation(
-            quote=claim.quote, verdict="incorrect",
+            quote=claim.quote,
+            verdict="incorrect",
             severity=record.severity_on_mismatch,
             actual=f"{record.value} (as of {record.as_of})",
-            source_kind="facts_json", source_ref=record.source,
+            source_kind="facts_json",
+            source_ref=record.source,
         )
 
     def _check_wikipedia(self, claim: CheckableClaim) -> FactClaimAnnotation:
@@ -96,13 +106,20 @@ class FactsService:
         if summary is None:
             return self._unverifiable(claim)
         return FactClaimAnnotation(
-            quote=claim.quote, verdict="misleading", severity=0.4,
+            quote=claim.quote,
+            verdict="misleading",
+            severity=0.4,
             actual="see wikipedia summary",
-            source_kind="wikipedia_mcp", source_ref=title_guess,
+            source_kind="wikipedia_mcp",
+            source_ref=title_guess,
         )
 
     def _unverifiable(self, claim: CheckableClaim) -> FactClaimAnnotation:
         return FactClaimAnnotation(
-            quote=claim.quote, verdict="unverifiable", severity=0.0,
-            actual=None, source_kind="facts_json", source_ref=None,
+            quote=claim.quote,
+            verdict="unverifiable",
+            severity=0.0,
+            actual=None,
+            source_kind="facts_json",
+            source_ref=None,
         )

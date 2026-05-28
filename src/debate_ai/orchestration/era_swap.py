@@ -34,7 +34,9 @@ def _pick_contrasting(eras: list[Era]) -> Era:
 
 
 def apply_era_swap(
-    persona_a: Persona, persona_b: Persona, strategy: str,
+    persona_a: Persona,
+    persona_b: Persona,
+    strategy: str,
 ) -> tuple[Era | None, Era | None]:
     """Return (era_a, era_b) for the era-swap round."""
     return pick_era(persona_a, strategy), pick_era(persona_b, strategy)

@@ -8,10 +8,14 @@ from debate_ai.models.message_models import DebaterReply, JudgeEnvelope, TurnSco
 from debate_ai.services.scoring_service import ScoringService
 
 
-def _reply(arg: str = "Strong claim with citation.", refs: str = "you said X",
-           attack: list[str] | None = None) -> DebaterReply:
+def _reply(
+    arg: str = "Strong claim with citation.",
+    refs: str = "you said X",
+    attack: list[str] | None = None,
+) -> DebaterReply:
     return DebaterReply(
-        argument="x" * 30 + " " + arg, confidence=0.7,
+        argument="x" * 30 + " " + arg,
+        confidence=0.7,
         attack_points=["counter-point"] if attack is None else attack,
         defense_points=["defense"],
         citations=["https://example.com"],
@@ -21,8 +25,11 @@ def _reply(arg: str = "Strong claim with citation.", refs: str = "you said X",
 
 def _env(sender: str, payload: dict, round_idx: int = 1) -> JudgeEnvelope:
     return JudgeEnvelope(
-        round=round_idx, kind=EnvelopeKind.REBUTTAL,
-        sender=sender, recipient="judge", payload=payload,
+        round=round_idx,
+        kind=EnvelopeKind.REBUTTAL,
+        sender=sender,
+        recipient="judge",
+        payload=payload,
     )
 
 
@@ -53,20 +60,20 @@ def test_lie_catch_no_opponent_history() -> None:
 def test_detect_drift_true_when_agreement_sustained() -> None:
     svc = ScoringService(agreement_keywords=["yes,", "agreed"], drift_window_turns=2)
     mem = ConversationMemory("d1", "motion")
-    mem.append(_env("debater-a", {"references_opponent": "yes, you are right",
-                                   "argument": "I agree"}))
-    mem.append(_env("debater-b", {"references_opponent": "agreed, exactly",
-                                   "argument": "totally"}))
+    mem.append(
+        _env("debater-a", {"references_opponent": "yes, you are right", "argument": "I agree"})
+    )
+    mem.append(_env("debater-b", {"references_opponent": "agreed, exactly", "argument": "totally"}))
     assert svc.detect_drift(mem)
 
 
 def test_detect_drift_false_when_only_one_turn_agrees() -> None:
     svc = ScoringService(agreement_keywords=["yes,"], drift_window_turns=2)
     mem = ConversationMemory("d1", "motion")
-    mem.append(_env("debater-a", {"references_opponent": "yes, you are right",
-                                   "argument": "I agree"}))
-    mem.append(_env("debater-b", {"references_opponent": "no",
-                                   "argument": "wrong because..."}))
+    mem.append(
+        _env("debater-a", {"references_opponent": "yes, you are right", "argument": "I agree"})
+    )
+    mem.append(_env("debater-b", {"references_opponent": "no", "argument": "wrong because..."}))
     assert not svc.detect_drift(mem)
 
 

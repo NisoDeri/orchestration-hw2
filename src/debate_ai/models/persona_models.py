@@ -69,4 +69,8 @@ class Persona(BaseModel):
 
     def as_loggable(self) -> dict[str, Any]:
         """Trim fields not safe / useful in log records (system_prompt is huge)."""
-        return {"name": self.name, "color_hex": self.color_hex, "eras": [e.label for e in self.eras]}
+        return {
+            "name": self.name,
+            "color_hex": self.color_hex,
+            "eras": [e.label for e in self.eras],
+        }

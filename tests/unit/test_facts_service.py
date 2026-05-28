@@ -9,27 +9,36 @@ from debate_ai.services.facts_service import FactsService
 
 
 def _cfg(lookup_order: list[str] | None = None) -> FactsConfig:
-    return FactsConfig.model_validate({
-        "version": "1.00",
-        "lookup_order": lookup_order or ["facts_json", "wikipedia_mcp", "web_search"],
-        "claims": {
-            "ballon_dor_count_messi": {
-                "value": 8, "as_of": "2024",
-                "source": "https://francefootball.fr",
-                "severity_on_mismatch": 0.6,
+    return FactsConfig.model_validate(
+        {
+            "version": "1.00",
+            "lookup_order": lookup_order or ["facts_json", "wikipedia_mcp", "web_search"],
+            "claims": {
+                "ballon_dor_count_messi": {
+                    "value": 8,
+                    "as_of": "2024",
+                    "source": "https://francefootball.fr",
+                    "severity_on_mismatch": 0.6,
+                },
+                "champions_league_titles_ronaldo": {
+                    "value": 5,
+                    "as_of": "2024",
+                    "source": "https://uefa.com",
+                    "severity_on_mismatch": 0.5,
+                },
             },
-            "champions_league_titles_ronaldo": {
-                "value": 5, "as_of": "2024",
-                "source": "https://uefa.com",
-                "severity_on_mismatch": 0.5,
-            },
-        },
-        "patterns": [
-            {"regex": r"Messi\s+has\s+(\d+)\s+Ballon d'Ors?", "claim_id": "ballon_dor_count_messi"},
-            {"regex": r"Ronaldo\s+won\s+(\d+)\s+Champions League titles?",
-             "claim_id": "champions_league_titles_ronaldo"},
-        ],
-    })
+            "patterns": [
+                {
+                    "regex": r"Messi\s+has\s+(\d+)\s+Ballon d'Ors?",
+                    "claim_id": "ballon_dor_count_messi",
+                },
+                {
+                    "regex": r"Ronaldo\s+won\s+(\d+)\s+Champions League titles?",
+                    "claim_id": "champions_league_titles_ronaldo",
+                },
+            ],
+        }
+    )
 
 
 def test_extract_finds_claims() -> None:
@@ -66,6 +75,7 @@ def test_verify_incorrect_claim_local() -> None:
 def test_verify_unverifiable_when_no_pattern_matches() -> None:
     # Construct a claim by hand for a claim_id we don't know.
     from debate_ai.services.facts_service import CheckableClaim
+
     svc = FactsService(_cfg(), wikipedia=MagicMock(available=lambda: False))
     anno = svc.verify(CheckableClaim(quote="x", claim_id="unknown_claim", captured_value="42"))
     assert anno.verdict == "unverifiable"
@@ -78,6 +88,7 @@ def test_verify_falls_through_to_wikipedia_when_local_misses() -> None:
     wiki.summary.return_value = {"extract": "found"}
     svc = FactsService(cfg, wikipedia=wiki)
     from debate_ai.services.facts_service import CheckableClaim
+
     anno = svc.verify(CheckableClaim(quote="x", claim_id="unknown_claim", captured_value="42"))
     assert anno.source_kind == "wikipedia_mcp"
     assert anno.verdict == "misleading"
@@ -89,5 +100,6 @@ def test_verify_unverifiable_when_wikipedia_unavailable() -> None:
     wiki.available.return_value = False
     svc = FactsService(cfg, wikipedia=wiki)
     from debate_ai.services.facts_service import CheckableClaim
+
     anno = svc.verify(CheckableClaim(quote="x", claim_id="unknown", captured_value="0"))
     assert anno.verdict == "unverifiable"

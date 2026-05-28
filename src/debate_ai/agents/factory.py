@@ -52,28 +52,50 @@ def create_agents(
         )
 
     agents[AgentRole.JUDGE.value] = JudgeAgent(
-        _ctx(AgentRole.JUDGE), jcfg=setup.judge,
+        _ctx(AgentRole.JUDGE),
+        jcfg=setup.judge,
     )
     agents[AgentRole.DEBATER_A.value] = MessiAgent(
-        _ctx(AgentRole.DEBATER_A), persona=persona_a,
+        _ctx(AgentRole.DEBATER_A),
+        persona=persona_a,
     )
     agents[AgentRole.DEBATER_B.value] = RonaldoAgent(
-        _ctx(AgentRole.DEBATER_B), persona=persona_b,
+        _ctx(AgentRole.DEBATER_B),
+        persona=persona_b,
     )
-    _add_optional(agents, setup, AgentRole.COMMENTATOR, lambda: CommentatorAgent(
-        _ctx(AgentRole.COMMENTATOR),
-    ))
-    _add_optional(agents, setup, AgentRole.CROWD, lambda: CrowdAgent(
-        _ctx(AgentRole.CROWD),
-    ))
-    _add_optional(agents, setup, AgentRole.FACT_CHECKER, lambda: FactCheckerAgent(
-        _ctx(AgentRole.FACT_CHECKER), facts_service=facts_service,
-    ))
+    _add_optional(
+        agents,
+        setup,
+        AgentRole.COMMENTATOR,
+        lambda: CommentatorAgent(
+            _ctx(AgentRole.COMMENTATOR),
+        ),
+    )
+    _add_optional(
+        agents,
+        setup,
+        AgentRole.CROWD,
+        lambda: CrowdAgent(
+            _ctx(AgentRole.CROWD),
+        ),
+    )
+    _add_optional(
+        agents,
+        setup,
+        AgentRole.FACT_CHECKER,
+        lambda: FactCheckerAgent(
+            _ctx(AgentRole.FACT_CHECKER),
+            facts_service=facts_service,
+        ),
+    )
     return agents
 
 
 def _add_optional(
-    agents: dict, setup: SetupConfig, role: AgentRole, builder: Any,
+    agents: dict,
+    setup: SetupConfig,
+    role: AgentRole,
+    builder: Any,
 ) -> None:
     if setup.agents_enabled.get(role.value, False):
         agents[role.value] = builder()

@@ -16,8 +16,12 @@ from debate_ai.shared.gatekeeper import Gatekeeper
 
 def _agent_model_cfg(**kw) -> AgentModelConfig:
     defaults = {
-        "model": "claude-sonnet-4-6", "temperature": 0.7, "max_tokens": 1024,
-        "skill_id": "sk_test", "tools": [], "tool_choice": {"type": "auto"},
+        "model": "claude-sonnet-4-6",
+        "temperature": 0.7,
+        "max_tokens": 1024,
+        "skill_id": "sk_test",
+        "tools": [],
+        "tool_choice": {"type": "auto"},
         "cache_system": False,
     }
     defaults.update(kw)

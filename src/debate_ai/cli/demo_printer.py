@@ -1,4 +1,5 @@
 """Rich console output for demo debate — chat-style with all agents."""
+
 from __future__ import annotations
 
 import time
@@ -16,10 +17,22 @@ from debate_ai.agents.demo_support_data import (
 from debate_ai.models.message_models import UIEvent
 
 console = Console()
-_C = {"debater-a": "blue", "debater-b": "red", "judge": "yellow",
-      "commentator": "magenta", "crowd": "cyan", "fact-checker": "green"}
-_N = {"debater-a": "Messi", "debater-b": "Ronaldo", "judge": "Judge",
-      "commentator": "Commentator", "crowd": "Crowd", "fact-checker": "Fact-Checker"}
+_C = {
+    "debater-a": "blue",
+    "debater-b": "red",
+    "judge": "yellow",
+    "commentator": "magenta",
+    "crowd": "cyan",
+    "fact-checker": "green",
+}
+_N = {
+    "debater-a": "Messi",
+    "debater-b": "Ronaldo",
+    "judge": "Judge",
+    "commentator": "Commentator",
+    "crowd": "Crowd",
+    "fact-checker": "Fact-Checker",
+}
 _turn = 0
 
 
@@ -44,11 +57,15 @@ def demo_subscriber(event: UIEvent) -> None:
         _start_debate(p)
     elif kind == "round_changed":
         rnd, rk = p.get("round", 0), p.get("kind", "")
-        label = {"opening": "OPENING", "rebuttal": "REBUTTAL",
-                 "era_swap": "ERA-SWAP", "closing": "CLOSING"}.get(rk, rk)
-        console.print(f"\n{'='*60}")
+        label = {
+            "opening": "OPENING",
+            "rebuttal": "REBUTTAL",
+            "era_swap": "ERA-SWAP",
+            "closing": "CLOSING",
+        }.get(rk, rk)
+        console.print(f"\n{'=' * 60}")
         console.print(f"[bold yellow]  Round {rnd} — {label}[/bold yellow]")
-        console.print(f"{'='*60}")
+        console.print(f"{'=' * 60}")
     elif kind == "agent_message":
         _handle_turn(p)
     elif kind == "score_update":
@@ -62,12 +79,15 @@ def demo_subscriber(event: UIEvent) -> None:
 
 def _start_debate(p: dict) -> None:
     console.print()
-    console.print(Panel(
-        f"[bold white]{p.get('motion', '')}[/bold white]\n\n"
-        "[dim]Judge scores PERSUASION only. Lies are allowed.\n"
-        "All messages route: Child -> Father (Judge) -> Child[/dim]",
-        title="DEBATE STARTED", border_style="green",
-    ))
+    console.print(
+        Panel(
+            f"[bold white]{p.get('motion', '')}[/bold white]\n\n"
+            "[dim]Judge scores PERSUASION only. Lies are allowed.\n"
+            "All messages route: Child -> Father (Judge) -> Child[/dim]",
+            title="DEBATE STARTED",
+            border_style="green",
+        )
+    )
     _chat("judge", JUDGE_PROMPTS[0])
 
 
@@ -97,25 +117,31 @@ def _print_support(idx: int) -> None:
         for fc in FACT_CHECKS[idx]:
             v = fc["verdict"].upper()
             color = "green" if v == "CORRECT" else "red" if v == "INCORRECT" else "yellow"
-            _chat("fact-checker", f"[{color}]{v}[/{color}]: \"{fc['claim']}\" — {fc['note']}")
+            _chat("fact-checker", f'[{color}]{v}[/{color}]: "{fc["claim"]}" — {fc["note"]}')
 
 
 def _print_score(p: dict) -> None:
     s = p.get("score", {})
     name = _N.get(p.get("agent", "?"), "?")
-    parts = [f"{k[:4].title()}: {s.get(k, 0):.1f}" for k in ("logic", "evidence", "persuasion", "counter")]
+    parts = [
+        f"{k[:4].title()}: {s.get(k, 0):.1f}"
+        for k in ("logic", "evidence", "persuasion", "counter")
+    ]
     total = sum(s.get(k, 0) for k in ("logic", "evidence", "persuasion", "counter"))
     console.print(f"  [dim]  Judge scores {name}: {' | '.join(parts)} = {total:.1f}/40[/dim]")
 
 
 def _print_verdict(p: dict) -> None:
-    console.print(f"\n{'='*60}")
+    console.print(f"\n{'=' * 60}")
     table = Table(title="FINAL VERDICT", show_header=True, border_style="green")
     table.add_column("Category", style="bold")
     table.add_column("Messi (A)", justify="center", style="blue")
     table.add_column("Ronaldo (B)", justify="center", style="red")
-    table.add_row("[bold]TOTAL[/bold]", f"[bold]{p.get('score_a', 0):.1f}[/bold]",
-                  f"[bold]{p.get('score_b', 0):.1f}[/bold]")
+    table.add_row(
+        "[bold]TOTAL[/bold]",
+        f"[bold]{p.get('score_a', 0):.1f}[/bold]",
+        f"[bold]{p.get('score_b', 0):.1f}[/bold]",
+    )
     rb = p.get("rubric_breakdown", {})
     for key in ("logic", "evidence", "persuasion", "counter"):
         a, b = rb.get("debater-a", {}).get(key, 0), rb.get("debater-b", {}).get(key, 0)

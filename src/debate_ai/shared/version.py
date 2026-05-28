@@ -14,9 +14,7 @@ from debate_ai.shared.exceptions import ConfigVersionError
 CODE_VERSION: str = _package_version
 
 
-def assert_config_version(
-    config_name: str, actual_version: str, expected_version: str
-) -> None:
+def assert_config_version(config_name: str, actual_version: str, expected_version: str) -> None:
     """Raise ``ConfigVersionError`` if a loaded config carries the wrong version.
 
     Called once per JSON config by ``shared.config.ConfigLoader`` after

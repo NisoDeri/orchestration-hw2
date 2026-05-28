@@ -20,7 +20,8 @@ from tests.unit.test_base_agent import _agent_model_cfg
 
 def _jcfg() -> JudgeConfig:
     return JudgeConfig(
-        verdict_no_tie_retries=2, drift_window_turns=3,
+        verdict_no_tie_retries=2,
+        drift_window_turns=3,
         agreement_keywords=["agree", "correct"],
     )
 
@@ -33,9 +34,12 @@ def _ctx(client: MagicMock):
     gk = MagicMock(spec=Gatekeeper)
     gk.call = MagicMock(side_effect=_gk_call)
     from debate_ai.agents.base_agent import AgentContext
+
     return AgentContext(
-        role="judge", config=_agent_model_cfg(cache_system=True),
-        default_betas=["skills-2025-10-02"], gatekeeper=gk,
+        role="judge",
+        config=_agent_model_cfg(cache_system=True),
+        default_betas=["skills-2025-10-02"],
+        gatekeeper=gk,
         memory=ConversationMemory("test-debate", "Messi vs Ronaldo"),
         context_builder=ContextBuilder(),
         anthropic_client=client,
@@ -45,8 +49,10 @@ def _ctx(client: MagicMock):
 def _reply() -> DebaterReply:
     return DebaterReply(
         argument="Messi's 8 Ballon d'Ors are unmatched in history.",
-        confidence=0.9, attack_points=["CL is a club metric"],
-        defense_points=["8 BdO"], citations=["https://example.com"],
+        confidence=0.9,
+        attack_points=["CL is a club metric"],
+        defense_points=["8 BdO"],
+        citations=["https://example.com"],
         references_opponent="you said Ronaldo's CL record",
     )
 
@@ -54,8 +60,11 @@ def _reply() -> DebaterReply:
 def test_relay_creates_envelope() -> None:
     judge = JudgeAgent(_ctx(MagicMock()), _jcfg())
     env = judge.relay(
-        sender="debater-a", recipient="debater-b",
-        kind=EnvelopeKind.REBUTTAL, payload={"arg": "test"}, round_index=3,
+        sender="debater-a",
+        recipient="debater-b",
+        kind=EnvelopeKind.REBUTTAL,
+        payload={"arg": "test"},
+        round_index=3,
     )
     assert env.sender == "debater-a"
     assert env.recipient == "debater-b"

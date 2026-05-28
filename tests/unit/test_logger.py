@@ -8,8 +8,14 @@ from pathlib import Path
 from debate_ai.shared.logger import FifoLogger
 
 
-def _make(tmp_path: Path, *, max_files: int = 3, lines_per_file: int = 5,
-          default_level: str = "INFO", overrides: dict | None = None) -> FifoLogger:
+def _make(
+    tmp_path: Path,
+    *,
+    max_files: int = 3,
+    lines_per_file: int = 5,
+    default_level: str = "INFO",
+    overrides: dict | None = None,
+) -> FifoLogger:
     return FifoLogger(
         directory=tmp_path / "logs",
         max_files=max_files,
@@ -89,7 +95,6 @@ def test_cursor_persists_across_instances(tmp_path: Path) -> None:
     b = _make(tmp_path, lines_per_file=2, max_files=10)
     b.log("INFO", source="t", n=4)
     total_lines = sum(
-        len(f.read_text(encoding="utf-8").splitlines())
-        for f in (tmp_path / "logs").glob("*.jsonl")
+        len(f.read_text(encoding="utf-8").splitlines()) for f in (tmp_path / "logs").glob("*.jsonl")
     )
     assert total_lines == 4

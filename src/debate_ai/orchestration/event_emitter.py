@@ -36,8 +36,10 @@ class EventEmitter:
         """Create, store, and broadcast a UIEvent."""
         with self._lock:
             event = UIEvent(
-                debate_id=self.debate_id, seq=self._seq,
-                kind=kind, payload=payload or {},
+                debate_id=self.debate_id,
+                seq=self._seq,
+                kind=kind,
+                payload=payload or {},
             )
             self._events.append(event)
             self._seq += 1

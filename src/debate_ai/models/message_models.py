@@ -129,11 +129,18 @@ class UIEvent(BaseModel):
     seq: int = Field(..., ge=0)
     ts: datetime = Field(default_factory=_now)
     kind: Literal[
-        "debate_started", "round_changed",
-        "agent_started_typing", "agent_message",
-        "score_update", "drift_warning",
-        "fact_check", "commentary", "crowd_reaction",
+        "debate_started",
+        "round_changed",
+        "agent_started_typing",
+        "agent_message",
+        "score_update",
+        "drift_warning",
+        "fact_check",
+        "commentary",
+        "crowd_reaction",
         "judge_guidance",
-        "verdict", "debate_ended", "error",
+        "verdict",
+        "debate_ended",
+        "error",
     ]
     payload: dict[str, Any] = Field(default_factory=dict)

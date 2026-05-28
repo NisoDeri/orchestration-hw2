@@ -40,14 +40,17 @@ class ScoringService:
         last_opponent = opponent_replies[-1]
         # Did the reply reference any part of the opponent's previous claims?
         opponent_text = (
-            last_opponent.argument + " "
+            last_opponent.argument
+            + " "
             + " ".join(last_opponent.attack_points)
             + " ".join(last_opponent.defense_points)
         )
         if reply.references_opponent and reply.references_opponent.lower() in (
             opponent_text.lower()
         ):
-            return score.model_copy(update={"persuasion": max(score.persuasion, score.persuasion + 1.0)})
+            return score.model_copy(
+                update={"persuasion": max(score.persuasion, score.persuasion + 1.0)}
+            )
         return score
 
     def detect_drift(self, memory: ConversationMemory) -> bool:
@@ -57,10 +60,11 @@ class ScoringService:
         triggers a re-anchor ruling from the Judge.
         """
         debater_envs = [
-            e for e in memory.snapshot()
+            e
+            for e in memory.snapshot()
             if e.envelope.sender in (AgentRole.DEBATER_A.value, AgentRole.DEBATER_B.value)
         ]
-        window = debater_envs[-self.drift_window_turns:]
+        window = debater_envs[-self.drift_window_turns :]
         if len(window) < self.drift_window_turns:
             return False
         return all(self._envelope_shows_agreement(e.envelope.payload) for e in window)

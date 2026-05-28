@@ -7,16 +7,22 @@ from debate_ai.orchestration.era_swap import apply_era_swap, pick_era
 
 
 def _persona(eras: list[dict] | None = None) -> Persona:
-    return Persona.model_validate({
-        "version": "1.00", "name": "Test", "display_name": "Test Player",
-        "color_hex": "#123456",
-        "system_prompt": "You argue passionately for the Test side of the debate.",
-        "style_notes": ["bold"],
-        "eras": [
-            {"label": "2009", "system_addendum": "You are 2009."},
-            {"label": "2014", "system_addendum": "You are 2014."},
-        ] if eras is None else eras,
-    })
+    return Persona.model_validate(
+        {
+            "version": "1.00",
+            "name": "Test",
+            "display_name": "Test Player",
+            "color_hex": "#123456",
+            "system_prompt": "You argue passionately for the Test side of the debate.",
+            "style_notes": ["bold"],
+            "eras": [
+                {"label": "2009", "system_addendum": "You are 2009."},
+                {"label": "2014", "system_addendum": "You are 2014."},
+            ]
+            if eras is None
+            else eras,
+        }
+    )
 
 
 def test_pick_first() -> None:

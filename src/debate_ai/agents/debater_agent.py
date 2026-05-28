@@ -49,9 +49,7 @@ class DebaterAgent(BaseAgent):
 
     def respond(self, envelope: JudgeEnvelope) -> DebaterReply:
         """Produce one debater reply against the latest relayed envelope."""
-        messages = self._build_messages() or [
-            {"role": "user", "content": _prompt_text(envelope)}
-        ]
+        messages = self._build_messages() or [{"role": "user", "content": _prompt_text(envelope)}]
         response = self._call_anthropic(messages=messages)
         payload = self._extract_payload(response)
         reply = self._validate_reply(payload)

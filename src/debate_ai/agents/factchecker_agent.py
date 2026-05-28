@@ -31,7 +31,9 @@ class FactCheckerAgent(BaseAgent):
     )
 
     def __init__(
-        self, ctx: AgentContext, facts_service: FactsService,
+        self,
+        ctx: AgentContext,
+        facts_service: FactsService,
     ) -> None:
         super().__init__(ctx, system_prompt=self.SYSTEM_PROMPT)
         self.facts = facts_service
@@ -54,7 +56,9 @@ class FactCheckerAgent(BaseAgent):
         return [self.facts.verify(c).model_dump() for c in claims]
 
     def _fc_prompt(
-        self, envelope: JudgeEnvelope, pre: list[dict],
+        self,
+        envelope: JudgeEnvelope,
+        pre: list[dict],
     ) -> str:
         return (
             f"Fact-check this debater turn. Sender: {envelope.sender}, "

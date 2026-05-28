@@ -28,7 +28,11 @@ class Watchdog:
         self._lock = threading.Lock()
 
     def call_with_timeout(
-        self, agent_role: str, fn: Callable[..., Any], *args: Any, **kwargs: Any,
+        self,
+        agent_role: str,
+        fn: Callable[..., Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> Any:
         """Run *fn* in a thread with the configured timeout."""
         future: Future = self._executor.submit(fn, *args, **kwargs)
@@ -36,8 +40,13 @@ class Watchdog:
             return future.result(timeout=self.cfg.timeout_s_per_call)
         except TimeoutError as exc:
             future.cancel()
-            self.logger.log("WARN", source="watchdog", kind="timeout",
-                            agent=agent_role, timeout_s=self.cfg.timeout_s_per_call)
+            self.logger.log(
+                "WARN",
+                source="watchdog",
+                kind="timeout",
+                agent=agent_role,
+                timeout_s=self.cfg.timeout_s_per_call,
+            )
             raise WatchdogTimeoutError(f"{agent_role} timed out") from exc
 
     def record_restart(self, agent_role: str) -> None:
@@ -49,8 +58,7 @@ class Watchdog:
             raise AgentUnrecoverableError(
                 f"{agent_role} exceeded max restarts ({self.cfg.max_restarts_per_agent})"
             )
-        self.logger.log("WARN", source="watchdog", kind="restart",
-                        agent=agent_role, count=count)
+        self.logger.log("WARN", source="watchdog", kind="restart", agent=agent_role, count=count)
 
     def restart_count(self, agent_role: str) -> int:
         with self._lock:

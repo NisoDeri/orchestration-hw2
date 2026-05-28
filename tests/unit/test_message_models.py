@@ -53,40 +53,70 @@ def test_debater_reply_confidence_range() -> None:
 
 
 def test_commentary_reply_valid() -> None:
-    CommentaryReply.model_validate({
-        "commentary": "Ronaldo just landed a haymaker on the CL run.",
-        "tone": "favouring_b", "round_ref": 3,
-    })
+    CommentaryReply.model_validate(
+        {
+            "commentary": "Ronaldo just landed a haymaker on the CL run.",
+            "tone": "favouring_b",
+            "round_ref": 3,
+        }
+    )
 
 
 def test_crowd_reply_emoji_count() -> None:
     with pytest.raises(ValidationError):
-        CrowdReply.model_validate({
-            "envelope_ref": "e1", "emojis": [], "one_liner": "wow", "lean": 0.0,
-        })
+        CrowdReply.model_validate(
+            {
+                "envelope_ref": "e1",
+                "emojis": [],
+                "one_liner": "wow",
+                "lean": 0.0,
+            }
+        )
     with pytest.raises(ValidationError):
-        CrowdReply.model_validate({
-            "envelope_ref": "e1", "emojis": ["🔥"] * 6, "one_liner": "ok", "lean": 0.0,
-        })
+        CrowdReply.model_validate(
+            {
+                "envelope_ref": "e1",
+                "emojis": ["🔥"] * 6,
+                "one_liner": "ok",
+                "lean": 0.0,
+            }
+        )
 
 
 def test_crowd_reply_lean_range() -> None:
     with pytest.raises(ValidationError):
-        CrowdReply.model_validate({
-            "envelope_ref": "e1", "emojis": ["🔥"], "one_liner": "wow", "lean": 2.0,
-        })
+        CrowdReply.model_validate(
+            {
+                "envelope_ref": "e1",
+                "emojis": ["🔥"],
+                "one_liner": "wow",
+                "lean": 2.0,
+            }
+        )
 
 
 def test_factcheck_reply_multi_claim() -> None:
-    reply = FactCheckReply.model_validate({
-        "envelope_ref": "e1",
-        "claims": [
-            {"quote": "8 BdO", "verdict": "correct", "severity": 0.1,
-             "source_kind": "facts_json", "source_ref": "facts.json#ballon_dor_count_messi"},
-            {"quote": "5 CL", "verdict": "incorrect", "severity": 0.6, "actual": "4 CL",
-             "source_kind": "facts_json"},
-        ],
-    })
+    reply = FactCheckReply.model_validate(
+        {
+            "envelope_ref": "e1",
+            "claims": [
+                {
+                    "quote": "8 BdO",
+                    "verdict": "correct",
+                    "severity": 0.1,
+                    "source_kind": "facts_json",
+                    "source_ref": "facts.json#ballon_dor_count_messi",
+                },
+                {
+                    "quote": "5 CL",
+                    "verdict": "incorrect",
+                    "severity": 0.6,
+                    "actual": "4 CL",
+                    "source_kind": "facts_json",
+                },
+            ],
+        }
+    )
     assert len(reply.claims) == 2
     assert isinstance(reply.claims[0], FactClaimAnnotation)
 
@@ -97,7 +127,9 @@ def test_turn_score_total() -> None:
 
 def test_verdict_rejects_tie() -> None:
     payload = {
-        "winner": "debater-a", "score_a": 70.0, "score_b": 70.0,
+        "winner": "debater-a",
+        "score_a": 70.0,
+        "score_b": 70.0,
         "reasoning": "x" * 40,
         "rubric_breakdown": {"debater-a": _rb(), "debater-b": _rb()},
     }
@@ -107,7 +139,9 @@ def test_verdict_rejects_tie() -> None:
 
 def test_verdict_winner_must_match_scores() -> None:
     payload = {
-        "winner": "debater-b", "score_a": 80.0, "score_b": 70.0,
+        "winner": "debater-b",
+        "score_a": 80.0,
+        "score_b": 70.0,
         "reasoning": "x" * 40,
         "rubric_breakdown": {"debater-a": _rb(), "debater-b": _rb()},
     }
@@ -116,33 +150,52 @@ def test_verdict_winner_must_match_scores() -> None:
 
 
 def test_verdict_valid() -> None:
-    Verdict.model_validate({
-        "winner": "debater-a", "score_a": 80.0, "score_b": 70.0,
-        "reasoning": "x" * 40,
-        "rubric_breakdown": {"debater-a": _rb(), "debater-b": _rb()},
-    })
+    Verdict.model_validate(
+        {
+            "winner": "debater-a",
+            "score_a": 80.0,
+            "score_b": 70.0,
+            "reasoning": "x" * 40,
+            "rubric_breakdown": {"debater-a": _rb(), "debater-b": _rb()},
+        }
+    )
 
 
 def test_envelope_requires_nonempty_sender_recipient() -> None:
     with pytest.raises(ValidationError):
-        JudgeEnvelope.model_validate({
-            "round": 1, "kind": EnvelopeKind.REBUTTAL, "sender": "  ", "recipient": "x",
-            "payload": {},
-        })
+        JudgeEnvelope.model_validate(
+            {
+                "round": 1,
+                "kind": EnvelopeKind.REBUTTAL,
+                "sender": "  ",
+                "recipient": "x",
+                "payload": {},
+            }
+        )
 
 
 def test_envelope_valid() -> None:
-    env = JudgeEnvelope.model_validate({
-        "round": 2, "kind": EnvelopeKind.REBUTTAL,
-        "sender": "debater-a", "recipient": "debater-b", "payload": {"argument": "x"},
-    })
+    env = JudgeEnvelope.model_validate(
+        {
+            "round": 2,
+            "kind": EnvelopeKind.REBUTTAL,
+            "sender": "debater-a",
+            "recipient": "debater-b",
+            "payload": {"argument": "x"},
+        }
+    )
     assert env.envelope_id  # auto-generated
 
 
 def test_ui_event_basic() -> None:
-    ev = UIEvent.model_validate({
-        "debate_id": "d1", "seq": 0, "kind": "debate_started", "payload": {},
-    })
+    ev = UIEvent.model_validate(
+        {
+            "debate_id": "d1",
+            "seq": 0,
+            "kind": "debate_started",
+            "payload": {},
+        }
+    )
     assert ev.kind == "debate_started"
 
 

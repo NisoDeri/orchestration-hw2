@@ -69,9 +69,9 @@ class BaseAgent(ABC):
 
     def _container_param(self) -> dict[str, Any]:
         """Anthropic Agent-Skill binding for this agent's role."""
-        return {"skills": [
-            {"type": "anthropic", "skill_id": self.cfg.skill_id, "version": "latest"}
-        ]}
+        return {
+            "skills": [{"type": "anthropic", "skill_id": self.cfg.skill_id, "version": "latest"}]
+        }
 
     def _call_anthropic(self, *, messages: list[dict], **extra: Any) -> Any:
         """Single chokepoint — every API call routes here."""

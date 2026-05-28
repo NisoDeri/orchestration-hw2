@@ -44,7 +44,7 @@ def build_tools_for_role(role: str, rl_cfg: RateLimitsConfig | None = None) -> l
     Debaters: ``web_search``. Judge + Fact-Checker: ``web_search`` for ad-hoc
     probes plus ``web_fetch`` for citation verification.
     """
-    provider = (rl_cfg.web_search_provider if rl_cfg else "anthropic_builtin")
+    provider = rl_cfg.web_search_provider if rl_cfg else "anthropic_builtin"
     if provider != "anthropic_builtin":
         # Fallback providers do NOT use server-side tools — the agent emits a
         # client-side function call which our gatekeeper handles. Returning
